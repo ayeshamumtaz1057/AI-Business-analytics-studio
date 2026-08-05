@@ -25,7 +25,8 @@ def generate_pdf_report(meta, ai_data):
         pdf.multi_cell(w=pdf.epw, h=6, txt=f"- {clean_ins}")
         pdf.ln(1)
 
-    return bytes(pdf.output())
+   pdf_bytes = pdf.output(dest="S")
+return pdf_bytes
 
 
 def generate_excel_report(meta, ai_data):
