@@ -145,8 +145,7 @@ if uploaded_file is not None:
             use_container_width=True
         )
     with btn2:
-        summary_stats = compute_summary_stats(df)
-        excel_bytes = generate_excel_report(df, summary_stats)
+       excel_bytes = generate_excel_report(meta, ai_data)
         st.download_button(
             "📊 Download Excel Workbook", 
             excel_bytes, 
