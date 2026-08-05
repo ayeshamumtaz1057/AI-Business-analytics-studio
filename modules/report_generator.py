@@ -11,7 +11,9 @@ class PDFReport(FPDF):
     def header(self):
         self.set_font('Helvetica', 'B', 16)
         self.set_text_color(30, 41, 59)
-        self.cell(0, 10, 'AI CSV Analytics Pro - Summary Report', border=False, new_x="LMARGIN", new_y="NEXT", align='C')
+        # Calculate printable width dynamically
+        eff_w = self.w - self.l_margin - self.r_margin
+        self.cell(eff_w, 10, 'AI CSV Analytics Pro - Summary Report', border=False, new_x="LMARGIN", new_y="NEXT", align='C')
         self.set_draw_color(56, 189, 248)
         self.set_line_width(0.8)
         self.line(10, 22, 200, 22)
@@ -21,7 +23,8 @@ class PDFReport(FPDF):
         self.set_y(-15)
         self.set_font('Helvetica', 'I', 9)
         self.set_text_color(148, 163, 184)
-        self.cell(0, 10, f'Page {self.page_no()}', align='C')
+        eff_w = self.w - self.l_margin - self.r_margin
+        self.cell(eff_w, 10, f'Page {self.page_no()}', align='C')
 
 
 def generate_pdf_report(metadata: Dict[str, Any], insights: Dict[str, Any]) -> bytes:
@@ -32,14 +35,16 @@ def generate_pdf_report(metadata: Dict[str, Any], insights: Dict[str, Any]) -> b
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
 
-    # Clean text to ensure standard latin-1 / ASCII compatibility for default Helvetica font
+    # Clean text to prevent Latin-1 encoding crashes with emojis or special symbols
     def sanitize_text(text: str) -> str:
-        return text.replace("**", "").encode("latin-1", "replace").decode("latin-1")
+        clean = text.replace("**", "")
+        return clean.encode("latin-1", "replace").decode("latin-1")
 
-    # Available printable width calculation
+    # Explicit printable width to prevent 0-width calculation errors
     eff_width = pdf.w - pdf.l_margin - pdf.r_margin
 
     # 1. Overview Section
+    pdf.set_x(pdf.l_margin)
     pdf.set_font('Helvetica', 'B', 13)
     pdf.set_text_color(15, 23, 42)
     pdf.cell(eff_width, 8, '1. Executive Dataset Summary', new_x="LMARGIN", new_y="NEXT")
@@ -54,10 +59,12 @@ def generate_pdf_report(metadata: Dict[str, Any], insights: Dict[str, Any]) -> b
         f"Duplicate Rows: {metadata['duplicate_rows']} ({metadata['duplicate_pct']}%)\n"
         f"Data Health Score: {insights['quality_score']} / 100"
     )
+    pdf.set_x(pdf.l_margin)
     pdf.multi_cell(eff_width, 6, sanitize_text(summary_text), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(5)
 
     # 2. Narrative Section
+    pdf.set_x(pdf.l_margin)
     pdf.set_font('Helvetica', 'B', 13)
     pdf.set_text_color(15, 23, 42)
     pdf.cell(eff_width, 8, '2. Automated Business Insights', new_x="LMARGIN", new_y="NEXT")
@@ -66,13 +73,14 @@ def generate_pdf_report(metadata: Dict[str, Any], insights: Dict[str, Any]) -> b
     pdf.set_text_color(51, 65, 85)
     for insight in insights['insights']:
         clean_insight = sanitize_text(insight)
-        # Setting explicit effective width and resetting margins prevents zero-width layout crashes
+        # Ensure cursor resets to left margin before each multi_cell call
         pdf.set_x(pdf.l_margin)
         pdf.multi_cell(eff_width, 6, f"- {clean_insight}", new_x="LMARGIN", new_y="NEXT")
 
     pdf.ln(5)
 
     # 3. Recommendations Section
+    pdf.set_x(pdf.l_margin)
     pdf.set_font('Helvetica', 'B', 13)
     pdf.set_text_color(15, 23, 42)
     pdf.cell(eff_width, 8, '3. Strategic Recommendations', new_x="LMARGIN", new_y="NEXT")
