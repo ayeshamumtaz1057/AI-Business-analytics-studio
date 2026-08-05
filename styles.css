@@ -1,0 +1,20 @@
+.main{
+background:#0e1117;
+}
+
+.stButton button{
+background:#2563eb;
+color:white;
+border-radius:12px;
+font-weight:bold;
+}
+
+.stMetric{
+background:#1e293b;
+padding:20px;
+border-radius:12px;
+}
+
+.stDataFrame{
+border-radius:15px;
+}
