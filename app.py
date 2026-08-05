@@ -1,6 +1,10 @@
 """
 AI CSV Analytics Pro - Streamlit Master Web Application
 """
+import modules.report_generator as rg
+
+print(rg.__file__)
+print(dir(rg))
 import streamlit as st
 import pandas as pd
 import numpy as np
