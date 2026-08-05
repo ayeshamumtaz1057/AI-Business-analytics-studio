@@ -45,7 +45,7 @@ def generate_pdf_report(metadata: Dict[str, Any], insights: Dict[str, Any]) -> b
         clean = text.replace("**", "")
         return clean.encode("latin-1", "replace").decode("latin-1")
 
-    # Define explicit available width (Page width minus both margins)
+    # Explicit available width (Page width minus both margins)
     eff_width = pdf.w - pdf.l_margin - pdf.r_margin
 
     # 1. Overview Section
