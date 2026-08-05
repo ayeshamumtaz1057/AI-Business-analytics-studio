@@ -1,3 +1,8 @@
+import streamlit as st
+
+with open("styles.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+    
 """
 app.py
 Streamlit front-end for the CSV/Excel Data Cleaner & Report Automator.
@@ -7,6 +12,32 @@ Upload a messy CSV or Excel file, see it cleaned, and download the result.
 import io
 import pandas as pd
 import streamlit as st
+import plotly.express as pxnumeric = df.select_dtypes(include="number").columns
+
+x = st.selectbox("X Axis", df.columns)
+
+y = st.selectbox("Y Axis", numeric)
+
+fig = px.bar(
+
+    df,
+
+    x=x,
+
+    y=y
+
+)
+
+st.plotly_chart(
+
+    fig,
+
+    use_container_width=True
+
+)
+
+
+
 
 from data_cleaner import (
     clean_column_names,
@@ -16,13 +47,15 @@ from data_cleaner import (
     generate_report,
 )
 
-st.set_page_config(page_title="Data Cleaner & Report Automator", page_icon="🧹", layout="wide")
+st.set_page_config(page_title="AI CSV Analytics", page_icon="🧹", layout="wide")
 
-st.title("🧹 Excel/CSV Data Cleaner & Report Automator")
+st.title("AI CSV Analytics")
 st.write(
-    "Upload a messy CSV or Excel file and this tool will strip whitespace, "
-    "fix capitalization, fill missing values, drop duplicates, and give you "
-    "a summary report — plus a cleaned file to download."
+    "st.markdown("""
+# 📊 AI CSV Analytics Pro
+
+### Upload • Clean • Analyze • Visualize • Export
+""")."
 )
 
 uploaded_file = st.file_uploader("Upload your file", type=["csv", "xlsx", "xls"])
@@ -62,9 +95,17 @@ if uploaded_file is not None:
         st.subheader("Total quantity sold per product")
         st.bar_chart(report["quantity_per_product"])
 
-    # --- Cleaned data preview ---
-    st.subheader("Cleaned data")
-    st.dataframe(df)
+   # st.subheader("Dataset Preview")
+
+st.dataframe(
+
+    df,
+
+    use_container_width=True,
+
+    height=400
+
+)
 
     # --- Download button ---
     csv_buffer = io.StringIO()
@@ -75,5 +116,9 @@ if uploaded_file is not None:
         file_name="cleaned_data.csv",
         mime="text/csv",
     )
+    
+   # st.subheader("Summary Statistics")
+
+st.write(df.describe())
 else:
     st.info("👆 Upload a .csv, .xlsx, or .xls file to get started.")
