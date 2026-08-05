@@ -5,4 +5,8 @@ plotly>=5.19.0
 openpyxl>=3.1.2
 scikit-learn>=1.4.0
 fpdf2>=2.7.8
-pillow>=10.2.0
+pillow>=10.2
+fpdf2
+google-generativeai
+
+
