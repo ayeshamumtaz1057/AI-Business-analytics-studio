@@ -12,7 +12,47 @@ Upload a messy CSV or Excel file, see it cleaned, and download the result.
 import io
 import pandas as pd
 import streamlit as st
-import plotly.express as pxnumeric = df.select_dtypes(include="number").columns
+import time
+import plotly.express as px
+
+
+with st.spinner("Analyzing Dataset..."):
+
+    time.sleep(2)
+
+st.success("Analysis Complete")
+
+
+
+st.subheader("AI Insights")
+
+st.success(f"""
+
+✅ Total Records : {len(df)}
+
+✅ Columns : {len(df.columns)}
+
+✅ Missing Values : {df.isnull().sum().sum()}
+
+✅ Duplicate Rows : {df.duplicated().sum()}
+
+""")
+
+
+st.success(f"""
+
+✅ Total Records : {len(df)}
+
+✅ Columns : {len(df.columns)}
+
+✅ Missing Values : {df.isnull().sum().sum()}
+
+✅ Duplicate Rows : {df.duplicated().sum()}
+
+""")
+
+
+numeric = df.select_dtypes(include="number").columns
 
 x = st.selectbox("X Axis", df.columns)
 
@@ -107,7 +147,31 @@ st.dataframe(
 
 )
 
-    # --- Download button ---
+    
+   # st.subheader("Summary Statistics")
+
+st.write(df.describe())
+else:
+    st.info("👆 Upload a .csv, .xlsx, or .xls file to get started.")
+
+
+corr = df.corr(numeric_only=True)
+
+fig = px.imshow(
+
+    corr,
+
+    text_auto=True,
+
+    color_continuous_scale="Viridis"
+
+)
+
+st.plotly_chart(fig)
+
+
+
+# --- Download button ---
     csv_buffer = io.StringIO()
     df.to_csv(csv_buffer, index=False)
     st.download_button(
@@ -117,8 +181,17 @@ st.dataframe(
         mime="text/csv",
     )
     
-   # st.subheader("Summary Statistics")
+    
+st.subheader("AI Insights")
 
-st.write(df.describe())
-else:
-    st.info("👆 Upload a .csv, .xlsx, or .xls file to get started.")
+st.success(f"""
+
+✅ Total Records : {len(df)}
+
+✅ Columns : {len(df.columns)}
+
+✅ Missing Values : {df.isnull().sum().sum()}
+
+✅ Duplicate Rows : {df.duplicated().sum()}
+
+""")
