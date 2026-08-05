@@ -78,7 +78,7 @@ def generate_pdf_report(metadata: Dict[str, Any], insights: Dict[str, Any]) -> b
     pdf.set_text_color(51, 65, 85)
     for insight in insights.get('insights', []):
         clean_insight = sanitize_text(insight)
-        # Always reset cursor to left margin before each item
+        # Reset cursor to left margin before each item
         pdf.set_x(pdf.l_margin)
         pdf.multi_cell(eff_width, 6, f"- {clean_insight}", new_x="LMARGIN", new_y="NEXT")
 
