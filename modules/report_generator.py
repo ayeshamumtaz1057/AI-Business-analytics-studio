@@ -8,17 +8,28 @@ def generate_pdf_report(meta, ai_data):
     pdf.add_page()
 
     pdf.set_font("Arial", "B", 16)
-    pdf.cell(0, 10, "Dataset Analytics Report", ln=True, align="C")
+    pdf.cell(0, 10, "Dataset Analytics Report", new_x="LMARGIN", new_y="NEXT", align="C")
     pdf.ln(5)
 
+    # Metadata
     pdf.set_font("Arial", "B", 12)
-    pdf.cell(0, 10, "Key Insights", ln=True)
+    pdf.cell(0, 10, "Dataset Summary", new_x="LMARGIN", new_y="NEXT")
 
     pdf.set_font("Arial", "", 10)
+    for key, value in meta.items():
+        text = f"{key}: {value}".encode("latin-1", "replace").decode("latin-1")
+        pdf.multi_cell(0, 6, text)
 
-    for insight in ai_data.get("insights", []):
-        text = str(insight).encode("latin-1", "replace").decode("latin-1")
-        pdf.multi_cell(0, 6, f"- {text}")
+    pdf.ln(5)
+
+    # Insights
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, "AI Insights", new_x="LMARGIN", new_y="NEXT")
+
+    pdf.set_font("Arial", "", 10)
+    for ins in ai_data.get("insights", []):
+        text = str(ins).encode("latin-1", "replace").decode("latin-1")
+        pdf.multi_cell(0, 6, "- " + text)
 
     return pdf.output(dest="S")
 
