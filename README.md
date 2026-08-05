@@ -1,19 +1,19 @@
 <div align="center">
 
-# 🧹 Excel/CSV Data Cleaner & Report Automator
+# 🧹 DataCleaner Pro
+### Excel/CSV Data Cleaner & Report Automator
 
-**A Python tool that automatically cleans messy CSV/Excel data and generates a quick summary report — a task that comes up constantly in real business and data analysis workflows.**
+A production-grade Python tool that automatically cleans messy CSV/Excel data and turns it into a clear, auditable report — available as a **command-line script** and as a **premium Streamlit dashboard**, so anyone on the team can clean a file without touching code.
 
-[![Python](https://img.shields.io/badge/Python-3.x-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
-[![pandas](https://img.shields.io/badge/pandas-data%20cleaning-150458?style=flat-square&logo=pandas&logoColor=white)](https://pandas.pydata.org/)
-[![openpyxl](https://img.shields.io/badge/openpyxl-Excel%20support-1D6F42?style=flat-square)](https://openpyxl.readthedocs.io/)
-[![Status](https://img.shields.io/badge/status-active-brightgreen?style=flat-square)](#)
-[![License](https://img.shields.io/badge/license-MIT-yellow?style=flat-square)](LICENSE)
-[![No API Key](https://img.shields.io/badge/setup-zero%20config-success?style=flat-square)](#)
+[![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![pandas](https://img.shields.io/badge/pandas-Data%20Engine-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-Web%20App-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](#-license)
+[![Status](https://img.shields.io/badge/Status-Actively%20Maintained-brightgreen)](#)
 
-Built by **[Ayesha Mumtaz](https://github.com/ayeshamumtaz1057)**
+**Built by [Ayesha Mumtaz](#-author)**
 
-[Problem](#-problem-it-solves) · [Features](#-features) · [How It Works](#️-how-it-works) · [Getting Started](#-getting-started) · [Cleaning Logic](#-cleaning-logic) · [Troubleshooting](#-troubleshooting) · [FAQ](#-faq)
+[Problem](#-problem-it-solves) · [Features](#-features) · [How It Works](#-how-it-works) · [Getting Started](#-getting-started) · [Deploy the Web App](#-deploying-the-web-app) · [Cleaning Logic](#-cleaning-logic) · [FAQ](#-faq)
 
 </div>
 
@@ -24,11 +24,12 @@ Built by **[Ayesha Mumtaz](https://github.com/ayeshamumtaz1057)**
 - [Problem It Solves](#-problem-it-solves)
 - [Features](#-features)
 - [Tech Stack](#-tech-stack)
-- [How It Works](#️-how-it-works)
+- [How It Works](#-how-it-works)
 - [Cleaning Logic](#-cleaning-logic)
 - [Function Reference](#-function-reference)
 - [Project Structure](#-project-structure)
 - [Getting Started](#-getting-started)
+- [Deploying the Web App](#-deploying-the-web-app)
 - [Example Output](#-example-output)
 - [How to Customize for Your Data](#-how-to-customize-for-your-data)
 - [Performance](#-performance)
@@ -36,8 +37,9 @@ Built by **[Ayesha Mumtaz](https://github.com/ayeshamumtaz1057)**
 - [FAQ](#-faq)
 - [Key Concepts Demonstrated](#-key-concepts-demonstrated)
 - [What I Learned Building This](#-what-i-learned-building-this)
-- [Possible Future Improvements](#-possible-future-improvements)
+- [Roadmap](#-roadmap)
 - [Real-World Use Cases](#-real-world-use-cases)
+- [Contributing](#-contributing)
 - [Author](#-author)
 - [License](#-license)
 
@@ -45,19 +47,15 @@ Built by **[Ayesha Mumtaz](https://github.com/ayeshamumtaz1057)**
 
 ## 🎯 Problem It Solves
 
-Raw data exports (from forms, sales systems, surveys, etc.) are almost never clean. Common issues include:
+Raw data exports — from forms, POS systems, CRMs, and surveys — are almost never clean. The same issues show up every time:
 
 - Extra spaces in column names and text values
-- Inconsistent capitalization (`"mouse"` vs `"MOUSE"` vs `"Mouse"`)
-- Missing values (empty quantity, price, or customer name fields)
+- Inconsistent capitalization (`mouse` vs `MOUSE` vs `Mouse`)
+- Missing values in quantity, price, or customer-name fields
 - Duplicate rows
 - Inconsistent data types
 
-This script **automates the cleanup process** instead of doing it manually in Excel, and produces a summary report showing what was cleaned.
-
-### Why it matters
-
-Doing this by hand takes twenty minutes, is easy to get wrong, and leaves no record of what changed. Running a script takes a second, produces identical results every time, and prints exactly what it did.
+Cleaning this by hand in Excel takes twenty minutes, is easy to get wrong, and leaves no record of what changed. **DataCleaner Pro** automates the cleanup, applies a defensible rule to every gap it fills, and produces a report that shows exactly what happened — in under a second, with identical results every time.
 
 ---
 
@@ -66,58 +64,70 @@ Doing this by hand takes twenty minutes, is easy to get wrong, and leaves no rec
 ### Cleaning
 
 | Feature | What it does |
-|:--|:--|
-| **Multi-format loading** | Reads `.csv`, `.xlsx` and `.xls`; raises a clear error on anything else |
-| **Column name cleanup** | Strips stray leading/trailing spaces from every header |
-| **Whitespace trimming** | Strips surrounding spaces from every text value in the file |
-| **Capitalization fix** | `Product` and `Customer Name` converted to title case, so `mouse` / `MOUSE` / `Mouse` become one value |
-| **Smart missing values** | Each column filled by a rule that suits it — see [Cleaning Logic](#-cleaning-logic) |
-| **Duplicate removal** | Fully duplicate rows dropped, with the count reported |
-| **Null normalisation** | Text `"nan"` produced during conversion is turned back into a real missing value |
+|---|---|
+| Multi-format loading | Reads `.csv`, `.xlsx`, and `.xls`; raises a clear error on anything else |
+| Column name cleanup | Strips stray leading/trailing spaces from every header |
+| Whitespace trimming | Strips surrounding spaces from every text value in the file |
+| Capitalization fix | `Product` and `Customer Name` converted to title case, so `mouse` / `MOUSE` / `Mouse` collapse into one value |
+| Type-safe text handling | Text columns are coerced to a proper string dtype before cleaning, so the tool doesn't crash on columns that arrive empty or numeric |
+| Smart missing values | Each column filled by a rule suited to it — see [Cleaning Logic](#-cleaning-logic) |
+| Duplicate removal | Fully duplicate rows dropped, with the count reported |
+| Null normalization | Text `"nan"` produced during conversion is turned back into a real missing value |
 
 ### Reporting
 
 | Feature | What it does |
-|:--|:--|
-| **Row summary** | Total rows remaining after cleaning |
-| **Duplicate count** | How many duplicate rows were removed |
-| **Quantity per product** | Total units sold, grouped by product |
-| **Revenue total** | `Price × Quantity` summed across the dataset, thousands-separated |
-| **Derived column** | A `Total` column is calculated and carried into the saved output |
+|---|---|
+| Row summary | Total rows remaining after cleaning |
+| Duplicate count | How many duplicate rows were removed |
+| Quantity per product | Total units sold, grouped by product — table (CLI) or chart (web app) |
+| Revenue total | Price × Quantity summed across the dataset |
+| Derived column | A `Total` column is calculated and carried into the cleaned output |
+| Data quality analytics | Missing-value counts, null percentage, dtype breakdown, and duplicate ratio, visualized in the web app |
+
+### Interfaces
+
+| Feature | What it does |
+|---|---|
+| Command-line script | `python data_cleaner.py` cleans the bundled sample data and writes a new CSV |
+| Streamlit dashboard | `streamlit run app.py` — a dark-themed, executive-style dashboard with drag-and-drop upload, live metrics, before/after preview, quality charts, and one-click export to CSV, Excel, or a text report |
+| Free hosting | Deployable in minutes on Streamlit Community Cloud for a shareable public URL |
 
 ### System
 
 | Feature | What it does |
-|:--|:--|
-| **Non-destructive** | The input file is never modified — output goes to a new CSV |
-| **Column-safe** | Every rule checks the column exists first, so it won't crash on a different schema |
-| **Reusable functions** | Seven small single-purpose functions you can import individually |
-| **Zero config** | No API keys, no accounts, no internet connection required |
-| **Sample data included** | Ships with `raw_sales_data.csv`, so it runs the moment you clone it |
+|---|---|
+| Non-destructive | The input file is never modified — output goes to a new file |
+| Column-safe | Every rule checks the column exists first, so it degrades gracefully on a different schema instead of crashing |
+| Reusable functions | Small, single-purpose functions in `data_cleaner.py` you can import individually |
+| Zero config | No API keys, no accounts, no internet connection required to run it |
+| Sample data included | Ships with `raw_sales_data.csv`, so both interfaces run the moment you clone it |
 
 ---
 
 ## 📊 Tech Stack
 
-| Purpose           | Library    |
-| ----------------- | ---------- |
-| Data manipulation | `pandas`   |
-| Excel files       | `openpyxl` |
+| Purpose | Library |
+|---|---|
+| Data manipulation | pandas |
+| Excel I/O | openpyxl |
+| Web dashboard | Streamlit |
+| Charts | Plotly |
 
 <details>
-<summary><b>Why these choices</b> (click to expand)</summary>
-
-<br>
+<summary><strong>Why these choices</strong> (click to expand)</summary>
 
 | Decision | Reasoning |
-|:--|:--|
-| **pandas** over the manual `csv` module | Vectorised operations clean thousands of rows in milliseconds. Filling prices with a per-product average is one `groupby().transform()` call and would be twenty lines of loops otherwise. |
-| **Group-based price fill** over a global average | A missing laptop price filled with the overall average would come out near a mouse's price. Filling from that product's own rows keeps the number plausible. |
-| **`Quantity` filled with `1`** over an average | An order exists, so the quantity is at least one. Assuming the minimum is conservative — an average would invent sales that never happened. |
-| **`"Unknown Customer"`** over dropping the row | The sale is real even when the name is missing. Deleting the row would silently reduce revenue; labelling it keeps the total honest and makes the gap visible. |
-| **Non-destructive output** | Cleaning rules are judgement calls. Writing to a new file means a wrong rule costs a re-run, not the original data. |
-| **A function per step** | Each rule can be read, tested, reordered or reused on its own. A single long `clean()` function could be none of those. |
-| **Existence checks before every rule** | `if "Product" in df.columns` means pointing this at a different schema degrades gracefully instead of crashing. |
+|---|---|
+| pandas over the manual `csv` module | Vectorized operations clean thousands of rows in milliseconds. A per-product price fill is one `groupby().transform()` call instead of twenty lines of loops. |
+| Group-based price fill over a global average | A missing laptop price filled with the overall average would land near a mouse's price. Filling from that product's own rows keeps the estimate plausible. |
+| Quantity filled with `1` over an average | An order exists, so the quantity is at least one. Assuming the minimum is conservative — an average would invent sales that never happened. |
+| `"Unknown Customer"` over dropping the row | The sale is real even when the name is missing. Deleting the row would silently reduce revenue; labeling it keeps the total honest and the gap visible. |
+| Non-destructive output | Cleaning rules are judgment calls. Writing to a new file means a wrong rule costs a re-run, not the original data. |
+| A function per step | Each rule can be read, tested, reordered, or reused on its own — something one long `clean()` function couldn't offer. |
+| Existence checks before every rule | `if "Product" in df.columns` means pointing this at a different schema degrades gracefully instead of crashing. |
+| pandas' nullable `"string"` dtype for text columns | `.str` accessors fail on columns pandas infers as `float64` (e.g., a completely empty `Customer Name` column). Coercing to `"string"` first makes the tool resilient to messy real-world files. |
+| Streamlit for the UI | Turns the script into a shareable, presentable web app — file uploader, live metrics, charts, and downloads — without a separate front-end framework. |
 
 </details>
 
@@ -125,35 +135,37 @@ Doing this by hand takes twenty minutes, is easy to get wrong, and leaves no rec
 
 ## 🏗️ How It Works
 
+Both interfaces run the exact same pipeline from `data_cleaner.py`:
+
 ```
- [ data/raw_sales_data.csv ]
-              |
-              v
-      load_data()              CSV or Excel → DataFrame
-              |
-              v
+ [ your CSV or Excel file ]
+              │
+              ▼
+      load_data()              CSV or Excel → DataFrame   (CLI only — the web app reads the upload directly)
+              │
+              ▼
       clean_column_names()     strip spaces from headers
-              |
-              v
+              │
+              ▼
       clean_text_columns()     trim values, title-case names
-              |
-              v
+              │
+              ▼
       handle_missing_values()  per-column fill rules
-              |
-              v
+              │
+              ▼
       remove_duplicates()      drop exact duplicates, count them
-              |
-              v
-      generate_report()        print the summary
-              |
-              v
-      save_clean_data()        write the output CSV
-              |
-              v
- [ data/cleaned_sales_data.csv ]
+              │
+              ▼
+      generate_report()        compute the summary stats
+              │
+              ▼
+   CLI: print_report() + save_clean_data()   │   Web app: dashboard metrics, charts, and download buttons
+              │
+              ▼
+      [ cleaned file, in hand either way ]
 ```
 
-Each function takes a DataFrame and returns a DataFrame, so steps can be reordered, skipped or reused independently. `main()` wires them together.
+Every function takes a DataFrame and returns a DataFrame, so steps can be reordered, skipped, or reused independently. `main()` wires them together for the CLI; `app.py` imports the same functions and wires them into the dashboard — **no cleaning logic is duplicated or reimplemented for the UI.**
 
 ---
 
@@ -161,12 +173,12 @@ Each function takes a DataFrame and returns a DataFrame, so steps can be reorder
 
 ### Missing values — one rule per column
 
-The core idea: **a single fill strategy for the whole file is always wrong somewhere.** Each column gets the rule that fits it.
+The core idea: a single fill strategy for the whole file is always wrong somewhere. Each column gets the rule that fits it.
 
 | Column | Rule | Reasoning |
-|:--|:--|:--|
+|---|---|---|
 | `Quantity` | Fill with `1` | An order exists, so at least one unit was sold. Conservative — never invents sales |
-| `Price` | Group mean **per product** | A laptop's missing price is estimated from other laptops, not from the whole catalogue |
+| `Price` | Group mean per product (overall mean as fallback) | A laptop's missing price is estimated from other laptops, not from the whole catalogue |
 | `Customer Name` | `"Unknown Customer"` | The sale is real; deleting the row would understate revenue |
 
 The price rule is the interesting one:
@@ -185,7 +197,9 @@ Filling from the overall average would flatten every product toward the middle �
 
 ### Capitalization
 
-Product and customer names are title-cased, so `mouse`, `MOUSE` and `Mouse` stop being three separate entries. This matters more than it looks: without it, `groupby("Product")` reports the same product three times and every total is wrong.
+`Product` and `Customer Name` are title-cased, so `mouse`, `MOUSE`, and `Mouse` stop being three separate entries. This matters more than it looks — without it, `groupby("Product")` reports the same product three times and every total is wrong.
+
+These columns are also coerced to pandas' nullable `"string"` dtype before any `.str` operation runs, so a column that arrives completely empty (which pandas reads as `float64`, not text) cleans normally instead of raising an `AttributeError`.
 
 ### Whitespace
 
@@ -196,21 +210,23 @@ Both headers and values are stripped. `" Product "` and `"Product"` are differen
 ## 🔍 Function Reference
 
 | Function | Signature | Returns |
-|:--|:--|:--|
+|---|---|---|
 | `load_data` | `(file_path)` | DataFrame — raises `ValueError` on unsupported extensions |
 | `clean_column_names` | `(df)` | DataFrame with stripped headers |
 | `clean_text_columns` | `(df)` | DataFrame with trimmed, title-cased text |
 | `handle_missing_values` | `(df)` | DataFrame with gaps filled per the rules above |
-| `remove_duplicates` | `(df)` | **Tuple** — `(df, removed_count)` |
-| `generate_report` | `(df, duplicates_removed)` | `None` — prints to console |
-| `save_clean_data` | `(df, output_path)` | `None` — writes the CSV |
+| `remove_duplicates` | `(df)` | Tuple — `(df, removed_count)` |
+| `generate_report` | `(df, duplicates_removed)` | Tuple — `(df, report_dict)` holding row count, duplicate count, per-product quantities, and total revenue |
+| `print_report` | `(report_dict)` | `None` — prints the report to the console (CLI only) |
+| `save_clean_data` | `(df, output_path)` | `None` — writes the cleaned CSV |
 
-> ⚠️ Note that `remove_duplicates` returns a **tuple**, not a DataFrame — unpack it:
+> ⚠️ `remove_duplicates` and `generate_report` both return **tuples** — unpack them:
 > ```python
 > df, removed = remove_duplicates(df)
+> df, report = generate_report(df, removed)
 > ```
 
-**Using a single function on its own:**
+Using a single function on its own:
 
 ```python
 import pandas as pd
@@ -226,12 +242,13 @@ df = handle_missing_values(df)
 ## 📂 Project Structure
 
 ```
-csv-excel-data-cleaner/
-├── data_cleaner.py            # Main script — all cleaning functions
+data-cleaner-pro/
+├── app.py                     # Streamlit dashboard — upload, preview, charts, downloads
+├── data_cleaner.py            # Core script — all cleaning functions, shared by both interfaces
+├── requirements.txt
 ├── data/
 │   ├── raw_sales_data.csv     # Sample messy input data
-│   └── cleaned_sales_data.csv # Generated after running
-├── requirements.txt
+│   └── cleaned_sales_data.csv # Generated after running the CLI script
 ├── README.md
 └── .github/
     └── ISSUE_TEMPLATE/        # Feature request template
@@ -244,7 +261,7 @@ csv-excel-data-cleaner/
 ### Prerequisites
 
 | Requirement | Version | Required? |
-|:--|:--|:--|
+|---|---|---|
 | Python | 3.x | ✅ Yes |
 | pip | latest | ✅ Yes |
 | Internet | — | ❌ No — runs fully offline |
@@ -262,10 +279,7 @@ cd csv-excel-data-cleaner
 pip install -r requirements.txt
 ```
 
-<details>
-<summary>Recommended: use a virtual environment first</summary>
-
-<br>
+Recommended: use a virtual environment first.
 
 ```bash
 python -m venv venv
@@ -278,18 +292,38 @@ pip install -r requirements.txt
 
 Your prompt should now begin with `(venv)`.
 
-</details>
-
-### 3. Run the script
+### 3a. Run the command-line script
 
 ```bash
 python data_cleaner.py
 ```
 
-### 4. Check the results
+- **Console output:** a summary report of the cleaning operations
+- **Generated file:** `data/cleaned_sales_data.csv`
 
-**Console output:** Summary report of cleaning operations
-**Generated file:** `data/cleaned_sales_data.csv` — your cleaned dataset
+### 3b. Run the web dashboard locally
+
+```bash
+streamlit run app.py
+```
+
+Opens the app at `http://localhost:8501`. Upload any `.csv`, `.xlsx`, or `.xls` file, review the raw and cleaned data side by side, explore the metrics and quality charts, and download the result as CSV, Excel, or a text report — no terminal output to read.
+
+---
+
+## 🌐 Deploying the Web App
+
+The dashboard deploys for free on **Streamlit Community Cloud** with no extra configuration.
+
+1. Make sure `requirements.txt` includes `streamlit`, `pandas`, `openpyxl`, and `plotly`.
+2. Push `app.py`, `data_cleaner.py`, and `requirements.txt` to the `main` branch of this repo.
+3. Go to [share.streamlit.io](https://share.streamlit.io) and sign in with GitHub.
+4. Click **New app**, select this repository and the `main` branch, and set the main file path to `app.py`.
+5. Click **Deploy**. Streamlit installs `requirements.txt` and builds the app — this takes a minute or two.
+6. Once live, the app is reachable at a public URL (e.g., `yourapp.streamlit.app`) that anyone can use without installing anything.
+7. Every future push to `main` automatically triggers a redeploy.
+
+If the build fails, check **Manage app → Logs** — it almost always points to a missing dependency or a column-handling edge case (see [Troubleshooting](#-troubleshooting)).
 
 ---
 
@@ -314,26 +348,26 @@ Total revenue (approx): 552,200
 ========================================
 ```
 
+The web dashboard shows the same numbers as metric cards, plus before/after tables and quality charts, with CSV/Excel/report download buttons underneath.
+
 ---
 
 ## 🔧 How to Customize for Your Data
 
-1. **Replace sample data:** Replace `data/raw_sales_data.csv` with your own CSV/Excel file
-2. **Update column names:** Edit the column names in `data_cleaner.py` if needed
-3. **Adjust cleaning logic:** Modify the functions to match your specific data structure
-4. **Change output:** Customize the report format in the console output section
+1. **Replace sample data:** swap `data/raw_sales_data.csv` for your own file, or upload directly in the web app.
+2. **Update column names:** edit the column references in `data_cleaner.py` if your headers differ.
+3. **Adjust cleaning logic:** modify the relevant function to match your data structure.
+4. **Change output:** customize `print_report()` (CLI) or the metrics/chart section of `app.py` (web app).
 
 <details>
-<summary><b>Worked example — adapting to an HR dataset</b></summary>
+<summary><strong>Worked example — adapting to an HR dataset</strong></summary>
 
-<br>
-
-The rules are keyed to column names, so swapping schemas means editing those references:
+Rules are keyed to column names, so swapping schemas means editing those references:
 
 ```python
 # clean_text_columns()
 if "Department" in df.columns:
-    df["Department"] = df["Department"].str.title()
+    df["Department"] = df["Department"].astype("string").str.strip().str.title()
 
 # handle_missing_values()
 if "Salary" in df.columns and "Department" in df.columns:
@@ -347,9 +381,7 @@ Every rule is wrapped in an existence check, so columns that don't apply are ski
 </details>
 
 <details>
-<summary><b>Using an Excel file instead of CSV</b></summary>
-
-<br>
+<summary><strong>Using an Excel file instead of CSV (CLI)</strong></summary>
 
 `load_data()` already handles `.xlsx` and `.xls` — just change the path:
 
@@ -357,16 +389,14 @@ Every rule is wrapped in an existence check, so columns that don't apply are ski
 input_file = "data/raw_sales_data.xlsx"
 ```
 
-Make sure `openpyxl` is installed; pandas needs it to read Excel.
+Make sure `openpyxl` is installed. The web app accepts Excel uploads out of the box via the file selector.
 
 </details>
 
 <details>
-<summary><b>Protecting a column from being filled</b></summary>
+<summary><strong>Protecting a column from being filled</strong></summary>
 
-<br>
-
-Identifier columns should never be imputed — a fabricated `Order ID` silently corrupts every join that uses it. Simply don't add a rule for them in `handle_missing_values()`; anything without a rule is left untouched.
+Identifier columns should never be imputed — a fabricated `Order ID` silently corrupts every join that uses it. Simply don't add a rule for it in `handle_missing_values()`; anything without a rule is left untouched.
 
 </details>
 
@@ -375,37 +405,38 @@ Identifier columns should never be imputed — a fabricated `Order ID` silently 
 ## ⚡ Performance
 
 | Rows | Typical time |
-|:--|:--|
+|---|---|
 | 100 | instant |
 | 10,000 | ~0.3 s |
 | 100,000 | ~2 s |
 | 1,000,000 | ~20 s |
 
-pandas operations are vectorised, so cost grows roughly linearly. Excel files are noticeably slower to read than CSV — that's `openpyxl` parsing XML, not the cleaning itself. For large datasets, convert to CSV first.
+pandas operations are vectorized, so cost grows roughly linearly. Excel files are noticeably slower to read than CSV — that's `openpyxl` parsing XML, not the cleaning itself. For large datasets, convert to CSV first. On Streamlit Community Cloud's free tier, very large uploads may hit the app's memory limit before they hit a time limit.
 
 ---
 
 ## 🛠 Troubleshooting
 
-<details open>
-<summary><b>Setup</b></summary>
+<details>
+<summary><strong>Setup</strong></summary>
 
 | Error | Fix |
-|:--|:--|
+|---|---|
 | `ModuleNotFoundError: No module named 'pandas'` | Dependencies not installed, or the virtual environment isn't active. Run `pip install -r requirements.txt` |
+| `ModuleNotFoundError: No module named 'streamlit'` | Add `streamlit` to `requirements.txt` and reinstall |
 | `Missing optional dependency 'openpyxl'` | `pip install openpyxl` — pandas needs it to read `.xlsx` |
-| `'python' is not recognized` | Reinstall Python and tick **Add Python to PATH**, or use `py` on Windows |
+| `'python' is not recognized` | Reinstall Python and tick "Add Python to PATH", or use `py` on Windows |
 
 </details>
 
 <details>
-<summary><b>Reading files</b></summary>
+<summary><strong>Reading files</strong></summary>
 
 | Error | Fix |
-|:--|:--|
-| `FileNotFoundError: data/raw_sales_data.csv` | Run the script from the project root — the path is relative. Check the `data/` folder exists and contains the CSV |
-| `ValueError: Unsupported file type` | `load_data()` accepts `.csv`, `.xlsx` and `.xls` only. Convert your file first |
-| `UnicodeDecodeError` | The CSV isn't UTF-8. Try `pd.read_csv(path, encoding="latin-1")` inside `load_data()` |
+|---|---|
+| `FileNotFoundError: data/raw_sales_data.csv` | Run the CLI script from the project root — the path is relative |
+| `ValueError: Unsupported file type` | Only `.csv`, `.xlsx`, and `.xls` are accepted |
+| `UnicodeDecodeError` | The CSV isn't UTF-8. Try `pd.read_csv(path, encoding="latin-1")` |
 | `PermissionError` | The file is open in Excel. Close it and re-run |
 | `ParserError: Error tokenizing data` | Inconsistent column counts. Add `on_bad_lines="skip"` to identify the offending rows |
 | All data lands in one column | Wrong delimiter — pass `sep=";"` or `sep="\t"` to `read_csv` |
@@ -413,39 +444,32 @@ pandas operations are vectorised, so cost grows roughly linearly. Excel files ar
 </details>
 
 <details>
-<summary><b>Cleaning behaviour</b></summary>
+<summary><strong>Cleaning behavior</strong></summary>
 
 | Issue | Fix |
-|:--|:--|
-| Nothing gets title-cased | The rules look for `Product` and `Customer Name` exactly. Check your headers match, or add your own column names |
-| `Price` still has blanks | That product has **no** price anywhere, so the group average is itself empty. Add a fallback to the overall mean |
-| Same product appears twice in the report | A capitalization or whitespace variant survived. Print `df["Product"].unique()` to spot it |
-| Revenue looks wrong | `Price` or `Quantity` is stored as text. Check with `df.dtypes` — they must be numeric |
-| Fewer rows than expected | Duplicate detection matches on **all** columns. Pass a `subset` of key columns to `drop_duplicates()` instead |
-| `SettingWithCopyWarning` | You're modifying a slice. Use `.copy()` when creating the subset, or assign with `.loc` |
+|---|---|
+| `AttributeError: Can only use .str accessor with string values, not float64` | A text column arrived completely empty or numeric, so pandas inferred it as `float64`. Fixed by coercing to `.astype("string")` before any `.str` call — confirm you're on the latest `data_cleaner.py` |
+| Nothing gets title-cased | Rules look for `Product` and `Customer Name` exactly. Check your headers match |
+| Price still has blanks | That product has no price anywhere, so the group average is itself empty. Confirm the overall-mean fallback is present |
+| Same product appears twice in the report | A capitalization or whitespace variant survived — print `df["Product"].unique()` to spot it |
+| Revenue looks wrong | Price or Quantity is stored as text — check with `df.dtypes` |
+| Fewer rows than expected | Duplicate detection matches on all columns — pass a subset to `drop_duplicates()` instead |
+| `SettingWithCopyWarning` | You're modifying a slice — use `.copy()` or assign with `.loc` |
 
 </details>
 
 <details>
-<summary><b>Writing output</b></summary>
+<summary><strong>Writing output & Streamlit Cloud</strong></summary>
 
 | Error | Fix |
-|:--|:--|
-| `PermissionError` on save | The output CSV is open in Excel. Close it |
-| `FileNotFoundError` on save | The `data/` folder doesn't exist. Create it, or use `os.makedirs(..., exist_ok=True)` |
-| Leading zeros vanish in Excel | Excel treats `00123` as a number. Keep the column as text, or open the CSV via Data → From Text |
-| Accented / Urdu text is garbled | Save with `encoding="utf-8-sig"` so Excel reads it correctly |
-
-</details>
-
-<details>
-<summary><b>Git & GitHub</b></summary>
-
-| Error | Fix |
-|:--|:--|
-| `! [rejected] main -> main (fetch first)` | Remote has commits you don't. `git pull --rebase origin main`, then push |
-| `Support for password authentication was removed` | Use a Personal Access Token: Settings → Developer settings → Tokens (classic) → scope `repo` |
-| Large data file rejected | GitHub caps files at 100 MB. Add it to `.gitignore` and commit a small sample instead |
+|---|---|
+| `PermissionError` on save | The output CSV is open in Excel — close it |
+| `FileNotFoundError` on save | The `data/` folder doesn't exist — create it or use `os.makedirs(..., exist_ok=True)` |
+| Leading zeros vanish in Excel | Excel treats `00123` as a number — keep the column as text |
+| Accented / Urdu text is garbled | Save with `encoding="utf-8-sig"` |
+| Streamlit build fails immediately | Check **Manage app → Logs** — almost always a missing package in `requirements.txt` |
+| App loads but crashes on upload | Usually the `.str` accessor issue above, or a column your rules assume exists — guard clauses should skip it |
+| App is slow to wake up | Free-tier apps sleep after inactivity — a few seconds' delay on the next visit is normal |
 
 </details>
 
@@ -453,123 +477,87 @@ pandas operations are vectorised, so cost grows roughly linearly. Excel files ar
 
 ## ❓ FAQ
 
-<details>
-<summary><b>Does it modify my original file?</b></summary>
-<br>
-No. The input is read-only and the cleaned data is written to a separate file. A cleaning rule that turns out to be wrong costs you a re-run, not your data.
-</details>
+**Does it modify my original file?**
+No. The input is read-only; the cleaned data is written to a separate file or offered as a fresh download in the web app.
 
-<details>
-<summary><b>Why is a missing Price filled per product instead of one overall average?</b></summary>
-<br>
-Because a global average is wrong for almost every row. A missing laptop price filled with the catalogue-wide mean comes out somewhere near a mouse. Grouping by product keeps each estimate inside a plausible range.
-</details>
+**Why is a missing Price filled per product instead of one overall average?**
+A global average is wrong for almost every row. Grouping by product keeps each estimate inside a plausible range.
 
-<details>
-<summary><b>Why is a missing Quantity filled with 1 rather than an average?</b></summary>
-<br>
-Because the row exists, so at least one unit was sold — that's a fact, not an estimate. An average would invent sales that never happened and inflate revenue.
-</details>
+**Why is a missing Quantity filled with `1` rather than an average?**
+The row exists, so at least one unit was sold — that's a fact, not an estimate.
 
-<details>
-<summary><b>Why not just delete rows with missing customer names?</b></summary>
-<br>
-The sale still happened. Dropping the row would quietly reduce your revenue total; labelling it <code>"Unknown Customer"</code> keeps the number honest and makes the data-quality gap visible.
-</details>
+**Why not just delete rows with missing customer names?**
+The sale still happened. Labeling it `"Unknown Customer"` keeps the revenue total honest and the data-quality gap visible.
 
-<details>
-<summary><b>Will it work on data that isn't sales data?</b></summary>
-<br>
-The generic steps — whitespace, headers, duplicates — work on anything. The specific rules look for <code>Product</code>, <code>Price</code>, <code>Quantity</code> and <code>Customer Name</code>, and are skipped when those columns are absent. See the <a href="#-how-to-customize-for-your-data">HR example</a> for adapting them.
-</details>
+**Will it work on data that isn't sales data?**
+The generic steps — whitespace, headers, duplicates — work on anything. The specific rules look for `Product`, `Price`, `Quantity`, and `Customer Name`, and are skipped when absent.
 
-<details>
-<summary><b>Does it support Excel files?</b></summary>
-<br>
-Yes — <code>load_data()</code> reads <code>.xlsx</code> and <code>.xls</code> as well as <code>.csv</code>. Output is always written as CSV.
-</details>
+**Does it support Excel files?**
+Yes — both interfaces read `.xlsx` and `.xls` as well as `.csv`. Output is always written as CSV (or Excel, from the web app).
 
-<details>
-<summary><b>How large a file can it handle?</b></summary>
-<br>
-Comfortably a few hundred thousand rows on a normal laptop. Beyond that, read in chunks or use a database — pandas holds the whole frame in memory.
-</details>
+**How large a file can it handle?**
+Comfortably a few hundred thousand rows on a normal laptop. Very large files may need to run through the CLI locally rather than Streamlit Cloud's free tier.
 
-<details>
-<summary><b>Is my data sent anywhere?</b></summary>
-<br>
-No. Everything runs locally, there are no API calls, and the script works with no internet connection at all.
-</details>
+**Is my data sent anywhere?**
+No. Everything runs locally (CLI) or within your own Streamlit deployment — there are no third-party API calls.
 
-<details>
-<summary><b>Why does the output have a Total column that wasn't in the input?</b></summary>
-<br>
-<code>generate_report()</code> calculates <code>Price × Quantity</code> to compute revenue, and that column is carried into the saved file. It's useful, so it's kept — drop it before saving if you'd rather the output matched the input schema exactly.
-</details>
+**Why does the output have a `Total` column that wasn't in the input?**
+`generate_report()` calculates Price × Quantity to compute revenue, and that column is carried into the cleaned data. Drop it before saving if you'd rather match the input schema exactly.
 
 ---
 
 ## 📚 Key Concepts Demonstrated
 
-- Using `pandas` for real-world data cleaning
-- Handling missing data with group-based logic
-- Structuring a Python script into clear, reusable functions
-- Writing a project others can actually clone and run
-- Building a practical tool for business data
-
----
-
-## 💡 What I Learned Building This
-
-- How to work with `pandas` DataFrames efficiently
-- Strategies for handling missing data intelligently
-- Creating reusable, maintainable functions
-- Generating meaningful reports from raw data
-- Building tools that solve real problems
+- Real-world data cleaning with pandas
+- Group-based logic for handling missing data
+- Structuring a script into clear, reusable functions shared across two interfaces
+- Building a dashboard on top of an existing script without duplicating logic
+- Deploying a Python data tool for free on Streamlit Community Cloud
+- Writing a project others can actually clone, run, and deploy
 
 <details>
-<summary><b>The specific lessons behind those points</b></summary>
+<summary><strong>What I learned building this</strong></summary>
 
-<br>
+**One fill strategy for the whole file is always wrong somewhere.** The obvious approach — fill every gap with the column average — produces laptop prices near mouse prices and invents quantities that were never ordered. Working out a separate rule for Quantity, Price, and Customer Name was the point this stopped being a tutorial exercise and started being a tool.
 
-**One fill strategy for the whole file is always wrong somewhere.** The obvious approach — fill every gap with the column average — produces laptop prices near mouse prices and invents quantities that were never ordered. Working out a separate rule for `Quantity`, `Price` and `Customer Name` was the point where this stopped being a tutorial exercise and started being a tool.
+**`groupby().transform()` was the unlock.** Filling each product's price from its own rows sounds like it needs a loop over products. It's one line — and understanding why `transform` returns something the same shape as the original was the most valuable pandas concept the project taught.
 
-**`groupby().transform()` was the unlock.** Filling each product's price from its own rows sounds like it needs a loop over products. It's one line, and understanding *why* `transform` returns something the same shape as the original was the most valuable pandas concept the project taught.
+**Capitalization bugs don't crash — they lie.** `mouse`, `Mouse`, and `MOUSE` grouped into three separate products, and the report showed three sets of totals that all looked plausible. Nothing errored. Normalizing text early prevents a whole category of bugs that produce confident wrong answers.
 
-**Capitalization bugs don't crash — they lie.** `mouse`, `Mouse` and `MOUSE` grouped into three separate products and the report showed three sets of totals that all looked plausible. Nothing errored. Normalising text early prevents a whole category of bugs that produce confident wrong answers.
+**Dtype assumptions don't crash until real data breaks them.** The script worked on the bundled sample, then threw an `AttributeError` the first time someone uploaded a file with a completely empty `Customer Name` column. Coercing to a proper string dtype before any `.str` call closed that gap.
 
-**Invisible whitespace is the same class of bug.** `" Product "` and `"Product"` are different columns to pandas. Stripping both headers and values costs two lines and removes a failure mode that's almost impossible to spot by eye.
+**Guard clauses make a script reusable.** Wrapping every rule in `if "Product" in df.columns` turned a sales-only script into something adaptable to any schema.
 
-**Guard clauses make a script reusable.** Wrapping every rule in `if "Product" in df.columns` means pointing the script at a different dataset skips the rules that don't apply instead of crashing. That single habit turned a sales-only script into something adaptable.
+**A cleaner without a report is a black box.** Printing rows removed, gaps filled, and resulting totals — or showing the same numbers as dashboard metrics — turned the output into something reviewable.
 
-**A cleaner without a report is a black box.** Producing a clean file with no indication of what changed asks the user to take it on trust. Printing rows removed, gaps filled and the resulting totals turned the output into something reviewable.
+**A script and a dashboard can share one brain.** `app.py` imports the exact same functions from `data_cleaner.py` rather than duplicating logic. Any bug fix or new rule only needs to happen in one place.
 
 </details>
 
 ---
 
-## 🚀 Possible Future Improvements
+## 🚀 Roadmap
 
-- [ ] Add support for cleaning multiple files in batch
-- [ ] Export the report as PDF or Excel summary sheet
-- [ ] Add data visualization (charts) using matplotlib
-- [ ] Add command-line arguments for custom file paths
-- [ ] Implement logging for detailed cleaning operations
-- [ ] Add data validation checks
-- [ ] Support for different file formats (JSON, XML)
-- [ ] Write the report to a file alongside the cleaned data
-- [ ] Add unit tests for each cleaning function
+- [ ] Batch cleaning for multiple files (CLI and web app)
+- [ ] Export the report as PDF or an Excel summary sheet
+- [ ] Additional chart types (revenue over time, price distribution)
+- [ ] Command-line arguments for custom file paths
+- [ ] Logging for detailed cleaning operations
+- [ ] In-app data validation checks with clearer warnings
+- [ ] Support for JSON and XML input
+- [ ] Configurable fill rules from the web app UI
+- [ ] Unit test suite for each cleaning function
 - [ ] Auto-detect numeric columns stored as text and convert them
 
 ---
 
 ## 💼 Real-World Use Cases
 
-- **E-commerce:** Clean product inventory and sales data
-- **HR Analytics:** Process employee records and surveys
-- **Finance:** Prepare financial reports from raw exports
-- **Marketing:** Clean customer databases and contact lists
-- **Research:** Prepare datasets for analysis
+- **E-commerce:** clean product inventory and sales data
+- **HR Analytics:** process employee records and surveys
+- **Finance:** prepare financial reports from raw exports
+- **Marketing:** clean customer databases and contact lists
+- **Research:** prepare datasets for analysis
 
 ---
 
@@ -583,39 +571,32 @@ git commit -m "Add your feature"
 git push origin feature/your-feature
 ```
 
-Please keep each cleaning rule in its own function, guard it with a column-existence check, and add a line to the report for anything it changes.
+Please keep each cleaning rule in its own function, guard it with a column-existence check, add a line to the report for anything it changes, and keep `data_cleaner.py` and `app.py` in sync.
 
-Have an idea? Open one using the [feature request template](.github/ISSUE_TEMPLATE).
+Have an idea? Open an issue using the feature request template.
 
 ---
 
 ## 👩‍💻 Author
 
-**Ayesha Mumtaz** — BS Information Technology Student
+**Ayesha Mumtaz**
+BS Information Technology Student
+📍Pakistan
 
-📍 Bahawalpur, Punjab, Pakistan
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/ayesha-mumtaz-82b8913a9)
-[![GitHub](https://img.shields.io/badge/GitHub-ayeshamumtaz1057-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/ayeshamumtaz1057)
+[GitHub](https://github.com/ayeshamumtaz1057) · [Repository](https://github.com/ayeshamumtaz1057/csv-excel-data-cleaner)
 
 ---
 
 ## 📄 License
 
-This project is open-sourced for educational purposes under the MIT License.
+This project is open-sourced for educational purposes under the [MIT License](LICENSE).
 
 ---
 
-## ⭐ Contribute or Suggest
-
-Have ideas to improve this tool? Feel free to:
-
-- ⭐ Star this repo
-- 🍴 Fork and submit a pull request
-- 💬 Open an issue with suggestions
-
 <div align="center">
 
-⭐ **Star this repo if you found it useful**
+**⭐ If this project was useful, consider starring the repo.**
+
+🍴 Fork it · 💬 Open an issue · 🤝 Submit a pull request
 
 </div>
