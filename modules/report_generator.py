@@ -11,14 +11,13 @@ class PDFReport(FPDF):
     def header(self):
         self.set_font('Helvetica', 'B', 16)
         self.set_text_color(30, 41, 59)
-        self.cell(0, 10, 'AI CSV Analytics Pro - Summary Report', border=False, ln=True, align='C')
+        self.cell(0, 10, 'AI CSV Analytics Pro - Summary Report', border=False, new_x="LMARGIN", new_y="NEXT", align='C')
         self.set_draw_color(56, 189, 248)
         self.set_line_width(0.8)
         self.line(10, 22, 200, 22)
         self.ln(8)
 
     def footer(self):
-        self.bottom_margin = 15
         self.set_y(-15)
         self.set_font('Helvetica', 'I', 9)
         self.set_text_color(148, 163, 184)
@@ -27,16 +26,23 @@ class PDFReport(FPDF):
 
 def generate_pdf_report(metadata: Dict[str, Any], insights: Dict[str, Any]) -> bytes:
     """
-    Generates a structured PDF document containing KPIs and business narratives.
+    Generates a structured PDF document containing KPIs and business narratives safely without layout crashes.
     """
     pdf = PDFReport()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
 
-    # Overview Section
+    # Clean text to ensure standard latin-1 / ASCII compatibility for default Helvetica font
+    def sanitize_text(text: str) -> str:
+        return text.replace("**", "").encode("latin-1", "replace").decode("latin-1")
+
+    # Available printable width calculation
+    eff_width = pdf.w - pdf.l_margin - pdf.r_margin
+
+    # 1. Overview Section
     pdf.set_font('Helvetica', 'B', 13)
     pdf.set_text_color(15, 23, 42)
-    pdf.cell(0, 8, '1. Executive Dataset Summary', ln=True)
+    pdf.cell(eff_width, 8, '1. Executive Dataset Summary', new_x="LMARGIN", new_y="NEXT")
     
     pdf.set_font('Helvetica', '', 10)
     pdf.set_text_color(51, 65, 85)
@@ -48,33 +54,35 @@ def generate_pdf_report(metadata: Dict[str, Any], insights: Dict[str, Any]) -> b
         f"Duplicate Rows: {metadata['duplicate_rows']} ({metadata['duplicate_pct']}%)\n"
         f"Data Health Score: {insights['quality_score']} / 100"
     )
-    pdf.multi_cell(0, 6, summary_text)
+    pdf.multi_cell(eff_width, 6, sanitize_text(summary_text), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(5)
 
-    # Narrative Section
+    # 2. Narrative Section
     pdf.set_font('Helvetica', 'B', 13)
     pdf.set_text_color(15, 23, 42)
-    pdf.cell(0, 8, '2. Automated Business Insights', ln=True)
+    pdf.cell(eff_width, 8, '2. Automated Business Insights', new_x="LMARGIN", new_y="NEXT")
 
     pdf.set_font('Helvetica', '', 10)
     pdf.set_text_color(51, 65, 85)
     for insight in insights['insights']:
-        # Replace markdown bold markers for PDF compatibility
-        clean_insight = insight.replace("**", "")
-        pdf.multi_cell(0, 6, f"- {clean_insight}")
+        clean_insight = sanitize_text(insight)
+        # Setting explicit effective width and resetting margins prevents zero-width layout crashes
+        pdf.set_x(pdf.l_margin)
+        pdf.multi_cell(eff_width, 6, f"- {clean_insight}", new_x="LMARGIN", new_y="NEXT")
 
     pdf.ln(5)
 
-    # Recommendations
+    # 3. Recommendations Section
     pdf.set_font('Helvetica', 'B', 13)
     pdf.set_text_color(15, 23, 42)
-    pdf.cell(0, 8, '3. Strategic Recommendations', ln=True)
+    pdf.cell(eff_width, 8, '3. Strategic Recommendations', new_x="LMARGIN", new_y="NEXT")
 
     pdf.set_font('Helvetica', '', 10)
     pdf.set_text_color(51, 65, 85)
     for rec in insights['recommendations']:
-        clean_rec = rec.replace("**", "")
-        pdf.multi_cell(0, 6, f"- {clean_rec}")
+        clean_rec = sanitize_text(rec)
+        pdf.set_x(pdf.l_margin)
+        pdf.multi_cell(eff_width, 6, f"- {clean_rec}", new_x="LMARGIN", new_y="NEXT")
 
     return bytes(pdf.output())
 
