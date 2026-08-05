@@ -30,6 +30,15 @@ from modules.visualizer import render_chart
 from modules.ml_engine import run_linear_regression
 from modules.report_generator import generate_pdf_report, generate_excel_report
 
+# Example Usage
+meta_sample = {"Filename": "data.csv", "Total Rows": 1500}
+ai_sample = {"insights": ["Revenue grew by 15%", "Top selling region is East"]}
+
+# Generate PDF bytes
+pdf_bytes = generate_pdf_report(meta_sample, ai_sample)
+
+# Generate Excel bytes
+excel_bytes = generate_excel_report(meta_sample, ai_sample)
 # 4. Initialize Session States
 if 'raw_df' not in st.session_state:
     st.session_state.raw_df = None
