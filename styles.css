@@ -1,20 +1,125 @@
-.main{
-background:#0e1117;
+/* AI CSV Analytics Pro - Custom Dark Theme Styling */
+
+:root {
+    --bg-primary: #0F172A;
+    --bg-secondary: #1E293B;
+    --bg-card: #182234;
+    --accent-blue: #38BDF8;
+    --accent-purple: #818CF8;
+    --text-primary: #F8FAFC;
+    --text-muted: #94A3B8;
+    --border-color: #334155;
+    --success: #10B981;
+    --warning: #F59E0B;
 }
 
-.stButton button{
-background:#2563eb;
-color:white;
-border-radius:12px;
-font-weight:bold;
+/* Global Container Tweaks */
+.main {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-.stMetric{
-background:#1e293b;
-padding:20px;
-border-radius:12px;
+/* Hero Section */
+.hero-container {
+    background: linear-gradient(135deg, #1E1B4B 0%, #0F172A 60%, #0369A1 100%);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    text-align: center;
 }
 
-.stDataFrame{
-border-radius:15px;
+.hero-title {
+    font-size: 2.75rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, #38BDF8 0%, #A855F7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+}
+
+.hero-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 650px;
+    margin: 0 auto 1.5rem auto;
+}
+
+/* Metric Cards */
+.metric-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-blue);
+}
+
+.metric-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+    margin-top: 0.25rem;
+}
+
+.metric-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+/* Custom Alert / Insight Boxes */
+.insight-box {
+    background-color: rgba(56, 189, 248, 0.05);
+    border-left: 4px solid var(--accent-blue);
+    border-radius: 4px 8px 8px 4px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.insight-box p {
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.recommendation-box {
+    background-color: rgba(16, 185, 129, 0.05);
+    border-left: 4px solid var(--success);
+    border-radius: 4px 8px 8px 4px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+}
+
+/* Dataframe Styling Override */
+.stDataFrame {
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Buttons Styling */
+.stButton > button {
+    border-radius: 8px;
+    font-weight: 600;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.stButton > button:hover {
+    box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+}
+
+/* Sidebar Custom Styling */
+section[data-testid="stSidebar"] {
+    background-color: #0B1120;
+    border-right: 1px solid var(--border-color);
 }
