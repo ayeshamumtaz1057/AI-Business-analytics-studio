@@ -32,7 +32,13 @@ from modules.data_cleaner import clean_dataset, get_column_types
 from modules.analytics import calculate_metadata, compute_summary_stats, generate_ai_insights
 from modules.visualizer import render_chart
 from modules.ml_engine import run_linear_regression
-from modules.report_generator import generate_pdf_report, generate_excel_report
+import modules.report_generator as rg
+
+print("Loaded from:", rg.__file__)
+print("Functions:", dir(rg))
+
+generate_pdf_report = rg.generate_pdf_report
+generate_excel_report = rg.generate_excel_report
 
 # Example Usage
 meta_sample = {"Filename": "data.csv", "Total Rows": 1500}
