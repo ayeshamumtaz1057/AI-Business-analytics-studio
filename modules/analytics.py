@@ -1,122 +1,138 @@
 """
-Statistical calculations and AI Insight Generation engine.
+Analytics module for statistical calculations and automated insights.
 """
 import pandas as pd
 import numpy as np
-from typing import Dict, Any
 
 
-def calculate_metadata(df: pd.DataFrame) -> Dict[str, Any]:
+def calculate_metadata(df: pd.DataFrame) -> dict:
     """
-    Calculates primary descriptive KPIs for dataset metadata.
+    Calculates high-level metadata used in the Executive Dataset Overview.
+
+    Returns a dict with:
+        rows, columns, null_cells, null_pct, duplicate_rows,
+        numeric_columns, categorical_columns, data_health_score
     """
-    total_cells = df.shape[0] * df.shape[1]
-    total_nulls = df.isna().sum().sum()
-    null_pct = (total_nulls / total_cells * 100) if total_cells > 0 else 0
-    dup_rows = df.duplicated().sum()
-    dup_pct = (dup_rows / len(df) * 100) if len(df) > 0 else 0
-    memory_mb = df.memory_usage(deep=True).sum() / (1024 * 1024)
+    total_cells = df.shape[0] * df.shape[1] if df.shape[1] else 0
+    null_cells = int(df.isna().sum().sum())
+    null_pct = round((null_cells / total_cells) * 100, 2) if total_cells else 0.0
+    duplicate_rows = int(df.duplicated().sum())
+
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    categorical_cols = df.select_dtypes(exclude=[np.number]).columns.tolist()
+
+    # Data Health Score (0-100): penalizes missing data and duplicate rows
+    completeness = 100 - null_pct
+    dup_penalty = min(20, (duplicate_rows / max(len(df), 1)) * 100)
+    health_score = max(0, round(completeness - dup_penalty, 1))
 
     return {
         "rows": df.shape[0],
         "columns": df.shape[1],
-        "total_nulls": int(total_nulls),
-        "null_pct": round(null_pct, 2),
-        "duplicate_rows": int(dup_rows),
-        "duplicate_pct": round(dup_pct, 2),
-        "memory_mb": round(memory_mb, 2)
+        "null_cells": null_cells,
+        "null_pct": null_pct,
+        "duplicate_rows": duplicate_rows,
+        "numeric_columns": len(numeric_cols),
+        "categorical_columns": len(categorical_cols),
+        "data_health_score": health_score,
     }
 
 
 def compute_summary_stats(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Generates detailed descriptive statistics for numerical columns.
+    Computes descriptive summary statistics for all numeric columns.
+    Falls back to an empty-but-valid DataFrame if there are no numeric columns.
     """
     numeric_df = df.select_dtypes(include=[np.number])
     if numeric_df.empty:
-        return pd.DataFrame()
-
-    stats_df = pd.DataFrame({
-        "Mean": numeric_df.mean(),
-        "Median": numeric_df.median(),
-        "Mode": numeric_df.mode().iloc[0] if not numeric_df.mode().empty else np.nan,
-        "Variance": numeric_df.var(),
-        "Std Dev": numeric_df.std(),
-        "Min": numeric_df.min(),
-        "25% (Q1)": numeric_df.quantile(0.25),
-        "75% (Q3)": numeric_df.quantile(0.75),
-        "Max": numeric_df.max()
-    })
-    return stats_df.round(3)
+        return pd.DataFrame({"Info": ["No numeric columns found in dataset."]})
+    return numeric_df.describe().T.reset_index().rename(columns={"index": "Column"})
 
 
-def generate_ai_insights(df: pd.DataFrame, meta: Dict[str, Any]) -> Dict[str, Any]:
+def generate_ai_insights(df: pd.DataFrame, meta: dict) -> dict:
     """
-    Generates automated analytical narratives, data quality scores, and recommendations.
+    Generates rule-based insights and recommendations about the dataset.
+    Returns {"insights": [...], "recommendations": [...]}
     """
     insights = []
     recommendations = []
 
-    # 1. Quality Score Calculation (Scale 0-100)
-    quality_score = 100 - (meta["null_pct"] * 0.6 + meta["duplicate_pct"] * 0.4)
-    quality_score = max(0, min(100, round(quality_score, 1)))
-
-    # 2. Structure Insights
-    insights.append(f"The dataset consists of **{meta['rows']:,}** rows and **{meta['columns']}** features.")
-    
-    if meta["null_pct"] > 0:
-        insights.append(f"Missing data represents **{meta['null_pct']}%** of all values.")
-        recommendations.append("Apply missing value imputation prior to downstream machine learning models.")
-    else:
-        insights.append("The dataset contains zero missing values.")
-
-    if meta["duplicate_pct"] > 0:
-        insights.append(f"Found **{meta['duplicate_rows']:,}** duplicate records ({meta['duplicate_pct']}%).")
-        recommendations.append("Execute data deduplication to eliminate redundant observation rows.")
-
-    # 3. Business Context Discovery (Top & Bottom Categories)
-    cat_cols = df.select_dtypes(include=['object', 'category']).columns
-    num_cols = df.select_dtypes(include=[np.number]).columns
-
-    top_cat_insight = None
-    if len(cat_cols) > 0 and len(num_cols) > 0:
-        primary_cat = cat_cols[0]
-        primary_num = num_cols[0]
-        
-        grouped = df.groupby(primary_cat)[primary_num].sum().sort_values(ascending=False)
-        if not grouped.empty:
-            highest_cat = grouped.index[0]
-            highest_val = grouped.iloc[0]
-            lowest_cat = grouped.index[-1]
-            lowest_val = grouped.iloc[-1]
-            
-            top_cat_insight = {
-                "category_col": primary_cat,
-                "metric_col": primary_num,
-                "highest_cat": str(highest_cat),
-                "highest_val": round(highest_val, 2),
-                "lowest_cat": str(lowest_cat),
-                "lowest_val": round(lowest_val, 2)
-            }
-            insights.append(
-                f"For **{primary_cat}**, the highest performing value based on **{primary_num}** is "
-                f"**{highest_cat}** ({highest_val:,.2f}), while **{lowest_cat}** represents the lowest ({lowest_val:,.2f})."
-            )
-
-    if not recommendations:
-        recommendations.append("Data hygiene is high. Proceed directly to feature engineering or predictive modeling.")
-
-    summary_paragraph = (
-        f"This dataset carries a overall Quality Score of {quality_score}/100. "
-        f"It contains {meta['rows']} records across {meta['columns']} attributes. "
-        f"Data completion rate sits at {100 - meta['null_pct']:.1f}% with "
-        f"{'minimal' if meta['duplicate_pct'] < 5 else 'significant'} duplication detected."
+    # Size / shape insight
+    insights.append(
+        f"Dataset contains {meta['rows']:,} rows and {meta['columns']} columns "
+        f"({meta['numeric_columns']} numeric, {meta['categorical_columns']} categorical)."
     )
 
-    return {
-        "quality_score": quality_score,
-        "summary": summary_paragraph,
-        "insights": insights,
-        "recommendations": recommendations,
-        "top_cat_insight": top_cat_insight
-    }
+    # Missing data
+    if meta["null_pct"] > 0:
+        insights.append(f"Missing data accounts for {meta['null_pct']}% of all cells.")
+        if meta["null_pct"] > 15:
+            recommendations.append(
+                "High proportion of missing values detected — consider reviewing data "
+                "collection processes or applying an imputation strategy."
+            )
+    else:
+        insights.append("No missing values detected — dataset is complete.")
+
+    # Duplicates
+    if meta["duplicate_rows"] > 0:
+        insights.append(f"{meta['duplicate_rows']} duplicate row(s) were found in the raw data.")
+        recommendations.append("Enable duplicate removal to ensure metrics aren't inflated.")
+
+    # Numeric column insights (skew, outliers, correlation)
+    numeric_df = df.select_dtypes(include=[np.number])
+    if not numeric_df.empty:
+        for col in numeric_df.columns[:5]:
+            series = numeric_df[col].dropna()
+            if series.empty:
+                continue
+            skew = series.skew()
+            if abs(skew) > 1:
+                direction = "right" if skew > 0 else "left"
+                insights.append(f"'{col}' is heavily {direction}-skewed (skew={skew:.2f}).")
+
+        if len(numeric_df.columns) >= 2:
+            corr = numeric_df.corr(numeric_only=True)
+            corr_pairs = (
+                corr.where(np.triu(np.ones(corr.shape), k=1).astype(bool))
+                .stack()
+                .sort_values(key=lambda s: s.abs(), ascending=False)
+            )
+            if not corr_pairs.empty:
+                top_pair = corr_pairs.index[0]
+                top_val = corr_pairs.iloc[0]
+                if abs(top_val) > 0.6:
+                    insights.append(
+                        f"Strong correlation ({top_val:.2f}) found between "
+                        f"'{top_pair[0]}' and '{top_pair[1]}'."
+                    )
+                    recommendations.append(
+                        f"Explore the relationship between '{top_pair[0]}' and "
+                        f"'{top_pair[1]}' further using regression or scatter analysis."
+                    )
+
+    # Categorical column insights (dominant category)
+    categorical_df = df.select_dtypes(exclude=[np.number])
+    for col in categorical_df.columns[:3]:
+        counts = categorical_df[col].value_counts()
+        if not counts.empty:
+            top_val = counts.index[0]
+            top_share = round((counts.iloc[0] / len(categorical_df)) * 100, 1)
+            if top_share > 50:
+                insights.append(
+                    f"'{col}' is dominated by '{top_val}' ({top_share}% of records)."
+                )
+
+    if meta["data_health_score"] >= 90:
+        recommendations.append("Data quality is excellent — ready for modeling or reporting.")
+    elif meta["data_health_score"] >= 70:
+        recommendations.append("Data quality is good, with minor cleanup opportunities remaining.")
+    else:
+        recommendations.append("Data quality needs attention before it's used for critical decisions.")
+
+    if not insights:
+        insights.append("No notable patterns detected in this dataset.")
+    if not recommendations:
+        recommendations.append("No specific recommendations — dataset looks ready to use.")
+
+    return {"insights": insights, "recommendations": recommendations}
