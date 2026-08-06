@@ -1,0 +1,22 @@
+# --- core app ---
+streamlit>=1.40
+pandas>=2.1
+numpy>=1.26
+plotly>=5.20
+SQLAlchemy>=2.0
+scikit-learn>=1.4
+
+# --- files & reports ---
+openpyxl>=3.1
+reportlab>=4.1
+XlsxWriter>=3.2
+python-pptx>=0.6.23      # optional: PowerPoint export
+kaleido>=0.2.1           # optional: embeds charts as images in PDFs
+chardet>=5.2             # optional: better encoding detection
+
+# --- AI ---
+google-generativeai>=0.8.0
+
+# --- optional database drivers ---
+# psycopg2-binary>=2.9
+# PyMySQL>=1.1

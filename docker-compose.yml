@@ -1,0 +1,13 @@
+services:
+  studio:
+    build: .
+    container_name: ai-analytics-studio
+    ports:
+      - "8501:8501"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - APP_CURRENCY=${APP_CURRENCY:-$$}
+      - APP_TARGET_REVENUE=${APP_TARGET_REVENUE:-8000000}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
