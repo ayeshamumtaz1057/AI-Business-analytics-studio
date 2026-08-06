@@ -151,13 +151,15 @@ if uploaded_file is not None:
             use_container_width=True
         )
     with btn2:
-       excel_bytes = generate_excel_report(meta, ai_data)
-        if st.button("Export"):
-    st.download_button(
-        label="Download CSV",
-        data=csv,
-        file_name="cleaned.csv"
-    )
+        summary_stats = compute_summary_stats(df)
+        excel_bytes = generate_excel_report(df, summary_stats)
+        st.download_button(
+            "📊 Download Excel Workbook",
+            excel_bytes,
+            "Cleaned_Dataset.xlsx",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            use_container_width=True
+        )
 
 else:
     st.info("👆 Upload a CSV or Excel file from the left sidebar to begin.")
