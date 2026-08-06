@@ -108,6 +108,65 @@ if uploaded_file is not None:
 
     st.markdown("---")
 
+    # Visual Analytics
+    st.subheader("📈 Visual Analytics")
+    from modules.visualizer import render_chart, CHART_TYPES
+
+    all_cols = df.columns.tolist()
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+
+    vc1, vc2, vc3, vc4 = st.columns(4)
+    with vc1:
+        chart_type = st.selectbox("Chart Type", CHART_TYPES)
+    with vc2:
+        x_col = st.selectbox("X / Category", options=[None] + all_cols)
+    with vc3:
+        y_col = st.selectbox("Y / Value", options=[None] + numeric_cols)
+    with vc4:
+        color_col = st.selectbox("Color (optional)", options=[None] + all_cols)
+
+    try:
+        fig = render_chart(df, chart_type, x=x_col, y=y_col, color=color_col)
+        st.plotly_chart(fig, use_container_width=True)
+    except ValueError as e:
+        st.warning(str(e))
+
+    st.markdown("---")
+
+    # Predictive Modeling
+    st.subheader("🔮 Predictive Modeling")
+    from modules.ml_engine import run_linear_regression
+
+    if len(numeric_cols) < 2:
+        st.info("Need at least 2 numeric columns to train a regression model.")
+    else:
+        mc1, mc2 = st.columns(2)
+        with mc1:
+            target_col = st.selectbox("Target column (what to predict)", options=numeric_cols)
+        with mc2:
+            feature_cols = st.multiselect(
+                "Feature columns",
+                options=[c for c in numeric_cols if c != target_col],
+                default=[c for c in numeric_cols if c != target_col][:3]
+            )
+
+        if st.button("Train Linear Regression Model", type="primary"):
+            if not feature_cols:
+                st.warning("Select at least one feature column.")
+            else:
+                result = run_linear_regression(df, target_col=target_col, feature_cols=feature_cols)
+                if not result["success"]:
+                    st.error(result["error"])
+                else:
+                    m1, m2, m3 = st.columns(3)
+                    m1.metric("R² Score", result["r2"])
+                    m2.metric("RMSE", result["rmse"])
+                    m3.metric("MAE", result["mae"])
+                    st.write("**Coefficients:**", result["coefficients"])
+                    st.write(f"Trained on {result['n_train']} rows, tested on {result['n_test']} rows.")
+
+    st.markdown("---")
+
     # AI Insights & Download Reports
     st.subheader("🤖 AI Insights & Download Reports")
     ai_data = generate_ai_insights(df, meta)
