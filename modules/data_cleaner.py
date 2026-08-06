@@ -11,11 +11,11 @@ def get_column_types(df: pd.DataFrame) -> dict:
     Categorize columns into Numeric, Categorical, and Date types.
     """
     numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    
+
     # Identify potential date columns
     date_cols = []
     categorical_cols = []
-    
+
     for col in df.select_dtypes(include=['object', 'category', 'datetime']).columns:
         if pd.api.types.is_datetime64_any_dtype(df[col]):
             date_cols.append(col)
@@ -39,14 +39,16 @@ def get_column_types(df: pd.DataFrame) -> dict:
     }
 
 
-def clean_dataset(df: pd.DataFrame) -> Tuple[pd.DataFrame, dict]:
+def clean_dataset(df: pd.DataFrame, drop_duplicates: bool = True, fill_na: str = "Mean/Mode") -> Tuple[pd.DataFrame, dict]:
     """
-    Applies standard automated cleaning transformations:
-    - Removes duplicate rows
+    Applies automated cleaning transformations based on user-selected options:
+    - Removes duplicate rows (if drop_duplicates=True)
     - Removes completely empty columns
-    - Imputes numeric NaNs with Median
-    - Imputes categorical NaNs with Mode
     - Converts date string columns to datetime
+    - Handles missing values per fill_na:
+        "Mean/Mode"  -> numeric NaNs filled with Median, categorical NaNs filled with Mode
+        "Drop Rows"  -> rows containing any NaN are dropped
+        "None"       -> missing values left untouched
     """
     cleaned_df = df.copy()
     stats = {
@@ -57,9 +59,10 @@ def clean_dataset(df: pd.DataFrame) -> Tuple[pd.DataFrame, dict]:
     }
 
     # 1. Deduplication
-    initial_rows = len(cleaned_df)
-    cleaned_df = cleaned_df.drop_duplicates()
-    stats["duplicates_removed"] = initial_rows - len(cleaned_df)
+    if drop_duplicates:
+        initial_rows = len(cleaned_df)
+        cleaned_df = cleaned_df.drop_duplicates()
+        stats["duplicates_removed"] = initial_rows - len(cleaned_df)
 
     # 2. Remove entirely empty columns
     initial_cols = cleaned_df.shape[1]
@@ -77,19 +80,24 @@ def clean_dataset(df: pd.DataFrame) -> Tuple[pd.DataFrame, dict]:
             except Exception:
                 pass
 
-    # 4. Impute missing values
+    # 4. Handle missing values based on user selection
     total_missing_before = cleaned_df.isna().sum().sum()
-    
-    for col in cleaned_df.columns:
-        if cleaned_df[col].isna().sum() > 0:
-            if pd.api.types.is_numeric_dtype(cleaned_df[col]):
-                median_val = cleaned_df[col].median()
-                cleaned_df[col] = cleaned_df[col].fillna(median_val if pd.notna(median_val) else 0)
-            else:
-                mode_val = cleaned_df[col].mode()
-                fill_val = mode_val[0] if not mode_val.empty else "Unknown"
-                cleaned_df[col] = cleaned_df[col].fillna(fill_val)
 
-    stats["missing_imputed"] = int(total_missing_before)
+    if fill_na == "Mean/Mode":
+        for col in cleaned_df.columns:
+            if cleaned_df[col].isna().sum() > 0:
+                if pd.api.types.is_numeric_dtype(cleaned_df[col]):
+                    median_val = cleaned_df[col].median()
+                    cleaned_df[col] = cleaned_df[col].fillna(median_val if pd.notna(median_val) else 0)
+                else:
+                    mode_val = cleaned_df[col].mode()
+                    fill_val = mode_val[0] if not mode_val.empty else "Unknown"
+                    cleaned_df[col] = cleaned_df[col].fillna(fill_val)
+        stats["missing_imputed"] = int(total_missing_before)
+    elif fill_na == "Drop Rows":
+        before = len(cleaned_df)
+        cleaned_df = cleaned_df.dropna()
+        stats["missing_imputed"] = before - len(cleaned_df)
+    # fill_na == "None": leave missing values untouched
 
     return cleaned_df, stats
