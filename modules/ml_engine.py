@@ -1,70 +1,83 @@
 """
-Automated Linear Regression modeling and evaluation engine.
+Machine Learning engine: automated Linear Regression modeling with evaluation metrics.
 """
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
-from typing import Tuple, Dict, Any, Optional
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+from sklearn.preprocessing import StandardScaler
 
 
-def run_linear_regression(
-    df: pd.DataFrame, target_col: str, feature_cols: list
-) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
+def run_linear_regression(df: pd.DataFrame, target_col: str, feature_cols: list, test_size: float = 0.2, random_state: int = 42) -> dict:
     """
-    Fits a Scikit-Learn Linear Regression model and computes performance metrics.
+    Trains a Linear Regression model to predict `target_col` from `feature_cols`.
+
+    Returns a dict with:
+        success (bool), error (str or None),
+        r2, rmse, mae, coefficients (dict), intercept,
+        y_test (list), y_pred (list)
     """
-    if not target_col or not feature_cols:
-        return None, "Target column and feature columns must be specified."
+    if target_col not in df.columns:
+        return {"success": False, "error": f"Target column '{target_col}' not found in dataset."}
 
-    # Filter numeric data without missing values
-    data = df[[target_col] + feature_cols].dropna()
-    
-    # Filter strictly numeric types for simple automated training
-    data = data.select_dtypes(include=[np.number])
+    valid_features = [c for c in feature_cols if c in df.columns and c != target_col]
+    if not valid_features:
+        return {"success": False, "error": "No valid feature columns selected."}
 
-    if data.shape[0] < 10:
-        return None, "Insufficient clean numeric data points (minimum 10 required) for training."
+    model_df = df[valid_features + [target_col]].copy()
+    model_df = model_df.select_dtypes(include=[np.number])
 
-    if target_col not in data.columns:
-        return None, "Target column must be numeric."
+    if target_col not in model_df.columns:
+        return {"success": False, "error": f"Target column '{target_col}' must be numeric."}
 
-    X = data[feature_cols]
-    y = data[target_col]
+    model_df = model_df.dropna()
+    valid_features = [c for c in valid_features if c in model_df.columns]
 
-    if X.empty:
-        return None, "Selected features do not contain sufficient numeric data."
+    if not valid_features:
+        return {"success": False, "error": "No numeric feature columns available after cleaning."}
+
+    if len(model_df) < 10:
+        return {"success": False, "error": "Not enough complete rows (need at least 10) to train a reliable model."}
+
+    X = model_df[valid_features]
+    y = model_df[target_col]
 
     try:
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=test_size, random_state=random_state
+        )
+
+        scaler = StandardScaler()
+        X_train_scaled = scaler.fit_transform(X_train)
+        X_test_scaled = scaler.transform(X_test)
 
         model = LinearRegression()
-        model.fit(X_train, y_train)
+        model.fit(X_train_scaled, y_train)
 
-        y_pred = model.predict(X_test)
+        y_pred = model.predict(X_test_scaled)
 
         r2 = r2_score(y_test, y_pred)
-        rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+        rmse = float(np.sqrt(mean_squared_error(y_test, y_pred)))
         mae = mean_absolute_error(y_test, y_pred)
 
-        # Prepare comparative table
-        results_df = pd.DataFrame({
-            "Actual": y_test.values,
-            "Predicted": y_pred,
-            "Residual": y_test.values - y_pred
-        }).round(3)
+        coefficients = dict(zip(valid_features, model.coef_.tolist()))
 
-        metrics = {
-            "r2": round(r2, 4),
+        return {
+            "success": True,
+            "error": None,
+            "r2": round(float(r2), 4),
             "rmse": round(rmse, 4),
-            "mae": round(mae, 4),
-            "results_df": results_df,
-            "model": model,
-            "features": feature_cols,
-            "target": target_col
+            "mae": round(float(mae), 4),
+            "coefficients": coefficients,
+            "intercept": round(float(model.intercept_), 4),
+            "y_test": y_test.tolist(),
+            "y_pred": y_pred.tolist(),
+            "features_used": valid_features,
+            "target": target_col,
+            "n_train": len(X_train),
+            "n_test": len(X_test),
         }
-        return metrics, None
 
     except Exception as e:
-        return None, f"ML Execution error: {str(e)}"
+        return {"success": False, "error": f"Model training failed: {str(e)}"}
