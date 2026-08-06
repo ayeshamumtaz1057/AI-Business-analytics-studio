@@ -1,3 +1,6 @@
+"""
+Report generation module: exports cleaned data and insights as PDF and Excel files.
+"""
 import io
 import pandas as pd
 from fpdf import FPDF
@@ -34,22 +37,13 @@ def generate_pdf_report(meta, ai_data):
     return bytes(pdf.output())
 
 
-def generate_excel_report(meta, ai_data):
+def generate_excel_report(df, summary_stats):
     output = io.BytesIO()
 
-    meta_df = pd.DataFrame(
-        list(meta.items()),
-        columns=["Property", "Value"]
-    )
-
-    insights_df = pd.DataFrame({
-        "Insights": ai_data.get("insights", [])
-    })
-
     with pd.ExcelWriter(output, engine="openpyxl") as writer:
-        meta_df.to_excel(writer, sheet_name="Metadata", index=False)
-        insights_df.to_excel(writer, sheet_name="AI Insights", index=False)
+        df.to_excel(writer, sheet_name="Cleaned Data", index=False)
+        if isinstance(summary_stats, pd.DataFrame):
+            summary_stats.to_excel(writer, sheet_name="Summary Stats", index=False)
 
     output.seek(0)
     return output.getvalue()
-
