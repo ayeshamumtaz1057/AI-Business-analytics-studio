@@ -7,31 +7,31 @@ def generate_pdf_report(meta, ai_data):
     pdf = FPDF()
     pdf.add_page()
 
-    pdf.set_font("Arial", "B", 16)
+    pdf.set_font("helvetica", "B", 16)
     pdf.cell(0, 10, "Dataset Analytics Report", new_x="LMARGIN", new_y="NEXT", align="C")
     pdf.ln(5)
 
     # Metadata
-    pdf.set_font("Arial", "B", 12)
+    pdf.set_font("helvetica", "B", 12)
     pdf.cell(0, 10, "Dataset Summary", new_x="LMARGIN", new_y="NEXT")
 
-    pdf.set_font("Arial", "", 10)
+    pdf.set_font("helvetica", "", 10)
     for key, value in meta.items():
         text = f"{key}: {value}".encode("latin-1", "replace").decode("latin-1")
-        pdf.multi_cell(0, 6, text)
+        pdf.multi_cell(0, 6, text, new_x="LMARGIN", new_y="NEXT")
 
     pdf.ln(5)
 
     # Insights
-    pdf.set_font("Arial", "B", 12)
+    pdf.set_font("helvetica", "B", 12)
     pdf.cell(0, 10, "AI Insights", new_x="LMARGIN", new_y="NEXT")
 
-    pdf.set_font("Arial", "", 10)
+    pdf.set_font("helvetica", "", 10)
     for ins in ai_data.get("insights", []):
         text = str(ins).encode("latin-1", "replace").decode("latin-1")
-        pdf.multi_cell(0, 6, "- " + text)
+        pdf.multi_cell(0, 6, "- " + text, new_x="LMARGIN", new_y="NEXT")
 
-    return pdf.output(dest="S")
+    return bytes(pdf.output())
 
 
 def generate_excel_report(meta, ai_data):
@@ -52,3 +52,4 @@ def generate_excel_report(meta, ai_data):
 
     output.seek(0)
     return output.getvalue()
+
