@@ -45,8 +45,6 @@ Everything runs on your machine. Nothing is uploaded anywhere — the app has no
 
 ## Demo
 
-Add your demo video link here.
-
 **Live app:** *https://aicsvanalyticspro-bdm8meypjt8q9dvhrrvmgt.streamlit.app/*
 
 ---
