@@ -1,10 +1,6 @@
 """
 AI CSV Analytics Pro - Streamlit Master Web Application
 """
-import modules.report_generator as rg
-
-print(rg.__file__)
-print(dir(rg))
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -32,23 +28,8 @@ from modules.data_cleaner import clean_dataset, get_column_types
 from modules.analytics import calculate_metadata, compute_summary_stats, generate_ai_insights
 from modules.visualizer import render_chart
 from modules.ml_engine import run_linear_regression
-import modules.report_generator as rg
+from modules.report_generator import generate_pdf_report, generate_excel_report
 
-print("Loaded from:", rg.__file__)
-print("Functions:", dir(rg))
-
-generate_pdf_report = rg.generate_pdf_report
-generate_excel_report = rg.generate_excel_report
-
-# Example Usage
-meta_sample = {"Filename": "data.csv", "Total Rows": 1500}
-ai_sample = {"insights": ["Revenue grew by 15%", "Top selling region is East"]}
-
-# Generate PDF bytes
-pdf_bytes = generate_pdf_report(meta_sample, ai_sample)
-
-# Generate Excel bytes
-excel_bytes = generate_excel_report(meta_sample, ai_sample)
 # 4. Initialize Session States
 if 'raw_df' not in st.session_state:
     st.session_state.raw_df = None
@@ -87,11 +68,15 @@ with st.sidebar:
 if uploaded_file is not None:
     # Load raw file
     if st.session_state.raw_df is None or st.session_state.get('last_uploaded') != uploaded_file.name:
-        st.session_state.raw_df = load_file(uploaded_file)
+        loaded_df, load_error = load_file(uploaded_file)
+        if load_error:
+            st.error(load_error)
+            st.stop()
+        st.session_state.raw_df = loaded_df
         st.session_state.last_uploaded = uploaded_file.name
 
     # Apply data cleaning
-    st.session_state.df = clean_dataset(
+    st.session_state.df, cleaning_stats = clean_dataset(
         st.session_state.raw_df, 
         drop_duplicates=drop_dups, 
         fill_na=fill_method
@@ -154,10 +139,10 @@ if uploaded_file is not None:
         summary_stats = compute_summary_stats(df)
         excel_bytes = generate_excel_report(df, summary_stats)
         st.download_button(
-            "📊 Download Excel Workbook",
-            excel_bytes,
-            "Cleaned_Dataset.xlsx",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "📊 Download Excel Workbook", 
+            excel_bytes, 
+            "Cleaned_Dataset.xlsx", 
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
             use_container_width=True
         )
 
