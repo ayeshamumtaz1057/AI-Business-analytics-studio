@@ -24,11 +24,22 @@ c3.metric("Nulls", f"{int(df.isna().sum().sum()):,}")
 
 
 def apply(new_df, msg):
+    if new_df is None:
+        return
     st.session_state["_undo"][name] = df.copy()
     state.update(name, new_df, msg)
     db.log(auth.current_user(), "clean", f"{name}: {msg}")
     st.session_state["_flash"] = msg
     st.rerun()
+
+
+def run(fn, *args, **kwargs):
+    """Run a cleaning op, surfacing failures as a message instead of a crash."""
+    try:
+        return fn(*args, **kwargs)
+    except Exception as exc:
+        st.error(f"That cleaning step could not be applied — {exc}")
+        return (None, "")
 
 
 tabs = st.tabs(["Duplicates", "Missing values", "Text & whitespace", "Dates",
@@ -39,7 +50,7 @@ with tabs[0]:
     keep = st.radio("Keep", ["first", "last"], horizontal=True)
     st.caption(f"{int(df.duplicated(subset=subset or None).sum()):,} duplicate rows detected.")
     if st.button("Remove duplicates", type="primary"):
-        apply(*cleaning.remove_duplicates(df, subset or None, keep))
+        apply(*run(cleaning.remove_duplicates, df, subset or None, keep))
 
 with tabs[1]:
     strategy = st.selectbox("Strategy", ["drop_rows", "drop_columns", "mean", "median",
@@ -47,7 +58,7 @@ with tabs[1]:
     cols = st.multiselect("Columns (blank = all)", list(df.columns))
     fill = st.text_input("Constant value", "Unknown") if strategy == "constant" else None
     if st.button("Apply", type="primary", key="mv"):
-        apply(*cleaning.handle_missing(df, strategy, cols or None, fill))
+        apply(*run(cleaning.handle_missing, df, strategy, cols or None, fill))
 
 with tabs[2]:
     txt = text_columns(df)
@@ -56,18 +67,18 @@ with tabs[2]:
         tc = st.multiselect("Text columns for case fix", txt)
         mode = st.selectbox("Case", ["title", "lower", "upper", "capitalize"])
         if st.button("Fix text case", key="case") and tc:
-            apply(*cleaning.fix_text_case(df, tc, mode))
+            apply(*run(cleaning.fix_text_case, df, tc, mode))
     with c2:
         wc = st.multiselect("Columns to trim (blank = all text)", txt, key="trim")
         if st.button("Trim whitespace", key="trimb"):
-            apply(*cleaning.trim_whitespace(df, wc or None))
+            apply(*run(cleaning.trim_whitespace, df, wc or None))
 
 with tabs[3]:
     dc = st.multiselect("Date columns", list(df.columns))
     out = st.radio("Output", ["datetime", "string"], horizontal=True)
     fmt = st.text_input("String format", "%Y-%m-%d") if out == "string" else "%Y-%m-%d"
     if st.button("Standardize dates", type="primary") and dc:
-        apply(*cleaning.standardize_dates(df, dc, out, fmt))
+        apply(*run(cleaning.standardize_dates, df, dc, out, fmt))
 
 with tabs[4]:
     num = df.select_dtypes(include=np.number).columns.tolist()
@@ -76,7 +87,7 @@ with tabs[4]:
     factor = st.slider("Sensitivity factor", 1.0, 5.0, 1.5, 0.1)
     action = st.radio("Action", ["remove", "clip"], horizontal=True)
     if st.button("Handle outliers", type="primary") and oc:
-        apply(*cleaning.remove_outliers(df, oc, method, factor, action))
+        apply(*run(cleaning.remove_outliers, df, oc, method, factor, action))
 
 with tabs[5]:
     c1, c2 = st.columns(2)
@@ -84,7 +95,7 @@ with tabs[5]:
     target = c2.selectbox("Convert to", ["numeric", "integer", "datetime", "string",
                                          "category", "boolean"])
     if st.button("Convert type", type="primary"):
-        apply(*cleaning.convert_types(df, col, target))
+        apply(*run(cleaning.convert_types, df, col, target))
 
 with tabs[6]:
     st.caption("Rename columns")
@@ -95,12 +106,12 @@ with tabs[6]:
             renames[c] = st.text_input(str(c), str(c), key=f"rn_{i}")
     b1, b2, b3 = st.columns(3)
     if b1.button("Apply renames", type="primary"):
-        apply(*cleaning.rename_columns(df, renames))
+        apply(*run(cleaning.rename_columns, df, renames))
     if b2.button("snake_case all names"):
-        apply(*cleaning.clean_column_names(df))
+        apply(*run(cleaning.clean_column_names, df))
     drop = st.multiselect("Drop columns", list(df.columns))
     if b3.button("Drop selected") and drop:
-        apply(*cleaning.drop_columns(df, drop))
+        apply(*run(cleaning.drop_columns, df, drop))
 
 st.divider()
 c1, c2 = st.columns([1, 3])

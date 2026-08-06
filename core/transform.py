@@ -19,8 +19,40 @@ def pivot(df, index, columns, values, aggfunc="sum", fill_value=0):
     return out.reset_index()
 
 
-def merge(left, right, how="inner", left_on=None, right_on=None, suffixes=("_x", "_y")):
-    return left.merge(right, how=how, left_on=left_on, right_on=right_on, suffixes=suffixes)
+def merge(left, right, how="inner", left_on=None, right_on=None,
+          suffixes=("_x", "_y"), coerce_keys=True):
+    """Join two dataframes, reconciling mismatched key dtypes.
+
+    pandas refuses to merge a text key against a numeric one. Rather than crash, we
+    try to make the keys compatible: numeric-looking text is parsed to numbers, and
+    anything still mismatched falls back to a string comparison on both sides.
+    Returns (dataframe, message) so the caller can tell the user what happened.
+    """
+    l, r = left.copy(), right.copy()
+    note = ""
+
+    if coerce_keys and left_on and right_on:
+        lk, rk = l[left_on], r[right_on]
+        if lk.dtype != rk.dtype:
+            l_num, r_num = pd.to_numeric(lk, errors="coerce"), pd.to_numeric(rk, errors="coerce")
+            both_numeric = l_num.notna().mean() > 0.95 and r_num.notna().mean() > 0.95
+            if both_numeric:
+                l[left_on], r[right_on] = l_num, r_num
+                note = (f"Keys had different types ({lk.dtype} vs {rk.dtype}); "
+                        f"both were read as numbers before joining.")
+            else:
+                l[left_on] = lk.astype(str).str.strip()
+                r[right_on] = rk.astype(str).str.strip()
+                note = (f"Keys had different types ({lk.dtype} vs {rk.dtype}); "
+                        f"both were compared as text. Check the result for unmatched rows.")
+
+    out = l.merge(r, how=how, left_on=left_on, right_on=right_on, suffixes=suffixes)
+
+    matched = out[left_on].notna().sum() if left_on in out.columns else len(out)
+    if not len(out):
+        note = ((note + " ") if note else "") + (
+            "No rows matched — the two key columns share no common values.")
+    return out, note or f"Joined {len(out):,} rows ({matched:,} matched on the key)."
 
 
 def split_column(df, column, sep=" ", maxsplit=1, names=None):
