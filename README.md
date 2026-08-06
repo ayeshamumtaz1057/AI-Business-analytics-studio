@@ -47,7 +47,7 @@ Everything runs on your machine. Nothing is uploaded anywhere — the app has no
 
 Add your demo video link here.
 
-**Live app:** *add your Streamlit Cloud URL here*
+**Live app:** *https://aicsvanalyticspro-bdm8meypjt8q9dvhrrvmgt.streamlit.app/*
 
 ---
 
