@@ -33,29 +33,44 @@
 ---
 
 ## 📸 Screenshots
+## 📸 Screenshots
 
 <div align="center">
 
-### Business Dashboard
-<img src="assets/screenshot-dashboard.png" alt="Dashboard" width="90%">
+### 📊 Business Dashboard
+
+<img src="assets/screenshot-dashboard.png" alt="Business Dashboard" width="100%">
 
 *Nine KPIs with period-over-period deltas, revenue trend, category breakdown, top products, regional map and an embedded 90-day forecast.*
 
-### AI Insights & Chat
-<img src="assets/screenshot-insights.png" alt="AI Insights" width="45%"> 
+### ✨ AI Insights
 
-<img src="assets/screenshot-chat.png" alt="Chat with data" width="45%">
+<img src="assets/screenshot-insights.png" alt="AI Insights" width="100%">
 
-*Executive report on the left, natural-language Q&A on the right.*
+*Executive summary, key trends, opportunities, risks and prioritised P1–P4 recommendations.*
 
-### Forecasting & Anomaly Detection
-<img src="assets/screenshot-forecast.png" alt="Forecasting" width="45%"> 
+### 💬 Chat with Data
 
-<img src="assets/screenshot-anomalies.png" alt="Anomalies" width="45%">
+<img src="assets/screenshot-chat.png" alt="Chat with Data" width="100%">
 
-*Confidence bands on projections; spikes and drops flagged with severity.*
+*Ask questions in plain English and get answers computed from your actual rows.*
+
+### 🔮 Forecasting
+
+<img src="assets/screenshot-forecast.png" alt="Forecasting" width="100%">
+
+*Revenue projected 7–365 periods ahead with a 95% confidence band and a backtested accuracy score.*
+
+### 🚨 Anomaly Detection
+
+<img src="assets/screenshot-anomalies.png" alt="Anomaly Detection" width="100%">
+
+*Unusual spikes and drops flagged automatically, each with direction and severity.*
 
 </div>
+
+---
+
 
 ---
 
