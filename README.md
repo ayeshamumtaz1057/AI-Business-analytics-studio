@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/banner.png" alt="AI Business Analytics Studio" width="100%">
+
 # 📊 AI Business Analytics Studio
 
 ### Upload your business data. Get a dashboard, AI insights, forecasts and board-ready reports in minutes.
@@ -19,7 +21,7 @@
 
 ## 🚀 Live Demo
 
-**▶️ [Try the live app](https://ai-business-analytics-studio-nevsltyu5qtzhgcrzhxzak.streamlit.app/)**
+**▶️ [Try the live app](https://your-app-name.streamlit.app)**
 
 | | |
 |---|---|
