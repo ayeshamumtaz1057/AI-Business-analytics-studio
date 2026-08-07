@@ -42,12 +42,16 @@
 *Nine KPIs with period-over-period deltas, revenue trend, category breakdown, top products, regional map and an embedded 90-day forecast.*
 
 ### AI Insights & Chat
-<img src="assets/screenshot-insights.png" alt="AI Insights" width="45%"> <img src="assets/screenshot-chat.png" alt="Chat with data" width="45%">
+<img src="assets/screenshot-insights.png" alt="AI Insights" width="45%"> 
+
+<img src="assets/screenshot-chat.png" alt="Chat with data" width="45%">
 
 *Executive report on the left, natural-language Q&A on the right.*
 
 ### Forecasting & Anomaly Detection
-<img src="assets/screenshot-forecast.png" alt="Forecasting" width="45%"> <img src="assets/screenshot-anomalies.png" alt="Anomalies" width="45%">
+<img src="assets/screenshot-forecast.png" alt="Forecasting" width="45%"> 
+
+<img src="assets/screenshot-anomalies.png" alt="Anomalies" width="45%">
 
 *Confidence bands on projections; spikes and drops flagged with severity.*
 
