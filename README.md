@@ -19,7 +19,7 @@
 
 ## 🚀 Live Demo
 
-**▶️ [Try the live app](https://your-app-name.streamlit.app)**
+**▶️ [Try the live app](https://ai-business-analytics-studio-nevsltyu5qtzhgcrzhxzak.streamlit.app/)**
 
 | | |
 |---|---|
