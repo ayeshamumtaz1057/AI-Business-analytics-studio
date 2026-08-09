@@ -2,6 +2,7 @@
 
 # 📊 AI Business Analytics Studio
 
+
 ### Upload your business data. Get a dashboard, AI insights, forecasts and board-ready reports in minutes.
 
 **A mini Power BI + ChatGPT for business data — built entirely in Python.**
