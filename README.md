@@ -1,5 +1,5 @@
 <div align="center">    
- 
+  
 # 📊 AI Business Analytics Studio
  
 ### Upload your business data. Get a dashboard, AI insights, forecasts and board-ready reports in minutes. 
